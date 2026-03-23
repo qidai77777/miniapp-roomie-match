@@ -61,30 +61,6 @@
             <input class="field-input" value="{{profile.wechat}}" maxlength="50" placeholder="请输入你的微信号" bindinput="onWechatInput" />
           </view>
         </view>
-
-        <view class="profile-panel summary-panel">
-          <view class="panel-title">当前资料</view>
-          <view class="summary-row">
-            <text class="summary-key">昵称</text>
-            <text class="summary-val">{{profile.nickName || '未设置'}}</text>
-          </view>
-          <view class="summary-row">
-            <text class="summary-key">性别</text>
-            <text class="summary-val">{{genderText}}</text>
-          </view>
-          <view class="summary-row">
-            <text class="summary-key">年龄</text>
-            <text class="summary-val">{{profile.age || '未设置'}}</text>
-          </view>
-          <view class="summary-row">
-            <text class="summary-key">学校</text>
-            <text class="summary-val">{{schoolDisplayText || '未设置'}}</text>
-          </view>
-          <view class="summary-row">
-            <text class="summary-key">微信号</text>
-            <text class="summary-val">{{profile.wechat || '未设置'}}</text>
-          </view>
-        </view>
       </view>
     </view>
   </view>
