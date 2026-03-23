@@ -1,8 +1,10 @@
 import {
   getProfileGenderText,
+  getSchoolDisplayName,
   schoolOptions,
   type ProfileData,
   type ProfileGender,
+  type SchoolOption,
 } from '../../utils/roomie'
 import { ensureLoggedIn, fetchCurrentUserProfile, getAuthSession } from '../../utils/auth'
 import { loadProfile, saveProfile } from '../../utils/storage'
@@ -13,10 +15,11 @@ let isSyncing = false
 
 type ProfilePageData = {
   profile: ProfileData
-  schoolOptions: readonly string[]
+  schoolOptions: readonly SchoolOption[]
   genderText: string
   missingText: string
   hasRequiredProfile: boolean
+  schoolDisplayText: string
 }
 
 type UpdateProfilePayload = {
@@ -43,6 +46,7 @@ function computeState(profile: ProfileData) {
     genderText: getProfileGenderText(profile.gender),
     missingText: missing.join('、'),
     hasRequiredProfile: isGenderComplete && isSchoolComplete && isWechatComplete,
+    schoolDisplayText: profile.school ? getSchoolDisplayName(profile.school) : '',
   }
 }
 
@@ -53,6 +57,7 @@ Page({
     genderText: '未设置',
     missingText: '',
     hasRequiredProfile: false,
+    schoolDisplayText: '',
   } as ProfilePageData,
 
   onShow() {
@@ -153,7 +158,8 @@ Page({
 
   onSchoolChange(e: WechatMiniprogram.PickerChange) {
     const index = Number(e.detail.value)
-    this.updateProfile({ school: this.data.schoolOptions[index] || '' })
+    const selected = this.data.schoolOptions[index]
+    this.updateProfile({ school: selected ? selected.value : '' })
   },
 
   onWechatInput(e: WechatMiniprogram.Input) {

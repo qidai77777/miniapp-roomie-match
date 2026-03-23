@@ -1,0 +1,53 @@
+<view class="preview-card">
+  <view class="preview-hero">
+    <view>
+      <view class="preview-chip">当前匹配记录</view>
+      <view class="preview-title">你已经提交过匹配信息</view>
+      <view class="preview-desc">这里展示的是你最近一次提交的内容，可以先快速确认，再决定是否重新填写。</view>
+    </view>
+  </view>
+
+  <view class="preview-grid">
+    <view class="preview-item">
+      <text class="preview-label">想找室友</text>
+      <text class="preview-value">{{genderText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">入住人数</text>
+      <text class="preview-value">{{checkinCountText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">期望户型</text>
+      <text class="preview-value">{{layoutText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">房间类型</text>
+      <text class="preview-value">{{roomTypeText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">预算范围</text>
+      <text class="preview-value">{{budgetText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">入住时间</text>
+      <text class="preview-value">{{checkinDateText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">中介费</text>
+      <text class="preview-value">{{agencyFeeText || '--'}}</text>
+    </view>
+    <view class="preview-item">
+      <text class="preview-label">生活习惯</text>
+      <text class="preview-value multiline">{{lifestyleText || '--'}}</text>
+    </view>
+  </view>
+
+  <view class="preview-section">
+    <view class="preview-section-title">自我介绍</view>
+    <view class="preview-section-body">{{introText || '暂无补充说明'}}</view>
+  </view>
+
+  <view class="preview-actions">
+    <view class="rewrite-btn" bindtap="onRewrite">重新填写</view>
+  </view>
+</view>

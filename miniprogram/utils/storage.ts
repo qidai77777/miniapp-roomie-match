@@ -1,9 +1,10 @@
 import {
   AUTH_STORAGE_KEY,
+  createDefaultAuthSession,
   createDefaultForm,
   createDefaultProfile,
-  createDefaultAuthSession,
   FORM_STORAGE_KEY,
+  normalizeSchoolValue,
   PROFILE_STORAGE_KEY,
   type AuthSession,
   type ProfileData,
@@ -29,7 +30,7 @@ export function loadProfile(): ProfileData {
     avatarUrl: typeof raw.avatarUrl === 'string' ? raw.avatarUrl : '',
     gender: raw.gender === 'male' || raw.gender === 'female' ? raw.gender : '',
     age: typeof raw.age === 'string' ? raw.age : '',
-    school: typeof raw.school === 'string' ? raw.school : '',
+    school: typeof raw.school === 'string' ? normalizeSchoolValue(raw.school) : '',
     wechat: typeof raw.wechat === 'string' ? raw.wechat : '',
   }
 }

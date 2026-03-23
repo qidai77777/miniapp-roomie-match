@@ -1,4 +1,4 @@
-<navigation-bar title="RoomieMatch" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+<navigation-bar title="拼室友" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
 
 <scroll-view class="page-scroll" scroll-y="{{true}}">
   <view class="page-shell">
@@ -11,9 +11,24 @@
           <view class="success-check"></view>
         </view>
         <view class="success-title">提交成功</view>
-        <view class="success-desc">🎉 我们已收到你的信息，正在为你匹配更合适的室友。</view>
-        <view class="btn-reset" bindtap="resetForm">重新填写</view>
+        <view class="success-desc">我们已经收到你的信息，正在为你匹配更合适的室友。</view>
+        <view class="btn-reset" bindtap="goHome">返回主页</view>
       </view>
+
+      <match-preview-card
+        wx:elif="{{hasCurrentMatch}}"
+        statusText="{{matchPreview.statusText}}"
+        introText="{{matchPreview.introText}}"
+        genderText="{{matchPreview.genderText}}"
+        checkinCountText="{{matchPreview.checkinCountText}}"
+        lifestyleText="{{matchPreview.lifestyleText}}"
+        layoutText="{{matchPreview.layoutText}}"
+        roomTypeText="{{matchPreview.roomTypeText}}"
+        agencyFeeText="{{matchPreview.agencyFeeText}}"
+        budgetText="{{matchPreview.budgetText}}"
+        checkinDateText="{{matchPreview.checkinDateText}}"
+        bind:rewrite="handleRewrite"
+      />
 
       <view wx:else class="form-card">
         <view class="form-header">
@@ -22,9 +37,9 @@
               <view class="brand-mark-core"></view>
             </view>
             <view class="brand-copy">
-              <view class="brand-chip">🏡 RoomieMatch</view>
+              <view class="brand-chip">拼室友</view>
               <view class="app-title">拼室友</view>
-              <view class="app-sub">✨ 更适合新加坡留学生的室友匹配</view>
+              <view class="app-sub">更适合留学生的室友匹配</view>
             </view>
           </view>
 
@@ -49,7 +64,7 @@
 
         <view wx:if="{{currentStep === 1}}" class="step-body">
           <view class="field-group {{shakingFields.preferredRoommateGender ? 'shake' : ''}}">
-            <view class="field-label">想找的室友 <text class="required">*</text></view>
+            <view class="field-label">想找的室友<text class="required">*</text></view>
             <view class="radio-group">
               <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectPreferredGender">
                 <text class="radio-title">男室友</text>
@@ -123,7 +138,7 @@
             </view>
           </view>
 
-          <view class="section-divider"><text>🙋 关于访客</text></view>
+          <view class="section-divider"><text>关于访客</text></view>
 
           <view class="field-group {{shakingFields.hasGuest ? 'shake' : ''}}">
             <view class="field-label">你本人是否会带访客回家？<text class="required">*</text></view>
@@ -229,7 +244,7 @@
         <view wx:if="{{currentStep === 4}}" class="step-body">
           <view class="field-group {{shakingFields.intro ? 'shake' : ''}}">
             <view class="field-label">补充说明 <text class="required">*</text></view>
-            <view class="field-hint">至少 10 个字，可以介绍自己、补充对室友的要求，或说明你更在意的居住习惯。</view>
+            <view class="field-hint">至少 10 个字，可以介绍自己、补充对室友的要求，或者说明你更在意的居住习惯。</view>
             <textarea class="field-textarea" value="{{form.intro}}" maxlength="300" placeholder="例如：我是个安静、作息规律的人，希望公共区域保持整洁，晚间沟通尽量轻声。" bindinput="onIntroInput"></textarea>
             <view class="char-count">{{form.intro.length}} / 300</view>
           </view>
@@ -242,15 +257,15 @@
           <view class="preview-card">
             <view class="preview-title">信息预览</view>
             <view class="preview-row">
-              <text class="preview-key">🏠 户型</text>
+              <text class="preview-key">户型</text>
               <text class="preview-val">{{houseTypePreview}}</text>
             </view>
             <view class="preview-row">
-              <text class="preview-key">💰 预算</text>
+              <text class="preview-key">预算</text>
               <text class="preview-val">{{budgetText}}</text>
             </view>
             <view class="preview-row">
-              <text class="preview-key">📅 入住</text>
+              <text class="preview-key">入住</text>
               <text class="preview-val">{{moveInText}}</text>
             </view>
           </view>

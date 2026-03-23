@@ -1,4 +1,4 @@
-<navigation-bar title="登录" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+<navigation-bar title="拼室友" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
 
 <view class="login-page">
   <view class="bg-orb orb-a"></view>

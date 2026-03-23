@@ -1,10 +1,16 @@
 import { request } from './request'
-import { clearAuthSession, loadAuthSession, saveAuthSession, saveProfile } from './storage'
-import { createDefaultAuthSession, type AuthSession, type ProfileData } from './roomie'
+import { clearAuthSession, loadAuthSession, loadProfile, saveAuthSession, saveProfile } from './storage'
+import {
+  createDefaultAuthSession,
+  normalizeSchoolValue,
+  type AuthSession,
+  type ProfileData,
+} from './roomie'
 
 const LOGIN_API_PATH = '/user/wx-login'
 const LOGIN_PAGE_PATH = '/pages/login/login'
 const HOME_PAGE_PATH = '/pages/index/index'
+const PROFILE_PAGE_PATH = '/pages/profile/profile'
 
 type LoginApiPayload = {
   code: string
@@ -112,6 +118,15 @@ export function hasUserProfile(session?: AuthSession): boolean {
   return currentSession.nickName.trim() !== '' && currentSession.avatarUrl.trim() !== ''
 }
 
+export function hasCompletedRequiredProfile(profile?: ProfileData): boolean {
+  const currentProfile = profile || loadProfile()
+  return (
+    currentProfile.gender !== '' &&
+    currentProfile.school.trim() !== '' &&
+    currentProfile.wechat.trim() !== ''
+  )
+}
+
 export function updateAuthSessionProfile(profile: {
   nickName: string
   avatarUrl: string
@@ -199,7 +214,7 @@ export async function fetchCurrentUserProfile(): Promise<AuthSession> {
     avatarUrl: typeof source.avatar === 'string' ? source.avatar : session.avatarUrl,
     gender: source.gender === 1 ? 'male' : source.gender === 2 ? 'female' : '',
     age: typeof source.age === 'number' ? String(source.age) : '',
-    school: typeof source.school === 'string' ? source.school : '',
+    school: typeof source.school === 'string' ? normalizeSchoolValue(source.school) : '',
     wechat: typeof source.wxNumber === 'string' ? source.wxNumber : '',
   })
 
@@ -223,7 +238,7 @@ export function ensureLoggedIn(options?: {
 }
 
 export function resolveLoginSuccessPath(): string {
-  return HOME_PAGE_PATH
+  return hasCompletedRequiredProfile() ? HOME_PAGE_PATH : PROFILE_PAGE_PATH
 }
 
 export function createGuestSession(): AuthSession {

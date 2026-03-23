@@ -1,6 +1,7 @@
 import { envConfig } from '../../config/env'
 import {
   getAuthSession,
+  hasCompletedRequiredProfile,
   hasUserProfile,
   fetchCurrentUserProfile,
   isLoggedIn,
@@ -30,20 +31,36 @@ Page({
   } as LoginPageData,
 
   onLoad() {
-    if (isLoggedIn()) {
-      const session = getAuthSession()
-      getApp<IAppOption>().globalData.authSession = session
+    void this.restoreSessionOrLogin()
+  },
 
-      if (hasUserProfile(session)) {
-        wx.reLaunch({ url: resolveLoginSuccessPath() })
-        return
-      }
-
-      this.enterProfileStep(session)
+  async restoreSessionOrLogin() {
+    if (!isLoggedIn()) {
+      await this.startLogin()
       return
     }
 
-    void this.startLogin()
+    let session = getAuthSession()
+    getApp<IAppOption>().globalData.authSession = session
+
+    if (hasUserProfile(session)) {
+      try {
+        session = await fetchCurrentUserProfile()
+        getApp<IAppOption>().globalData.authSession = session
+      } catch {
+        // Keep cached profile when remote refresh fails.
+      }
+
+      wx.reLaunch({ url: resolveLoginSuccessPath() })
+      return
+    }
+
+    if (hasCompletedRequiredProfile()) {
+      wx.reLaunch({ url: resolveLoginSuccessPath() })
+      return
+    }
+
+    this.enterProfileStep(session)
   },
 
   async startLogin() {
