@@ -130,9 +130,24 @@ function mapExpectedRoomType(value: RoomType): string {
   return '都可以'
 }
 
+function getMatchStatusText(status?: string): string {
+  if (!status) return '匹配中'
+
+  switch (status) {
+    case 'submitted':
+      return '匹配中'
+    case 'matched':
+      return '待确认'
+    case 'confirmed':
+      return '已确认'
+    default:
+      return status
+  }
+}
+
 function buildSubmitPayload(form: RoomieFormData): SubmitMatchPayload {
   return {
-    matchStatus: '已提交',
+    matchStatus: 'submitted',
     selfIntroduction: form.intro.trim(),
     expectedGender: mapExpectedGender(form.preferredRoommateGender),
     checkinCount: Number(form.occupantCount),
@@ -238,7 +253,7 @@ function createEmptyMatchPreview(): MatchPreviewData {
 
 function buildMatchPreview(record: CurrentMatchRecord): MatchPreviewData {
   return {
-    statusText: record.matchStatus || '已提交',
+    statusText: getMatchStatusText(record.matchStatus),
     introText: record.selfIntroduction || '',
     genderText: getGenderText(record.expectedGender),
     checkinCountText: getCheckinCountText(record.checkinCount),

@@ -7,44 +7,48 @@
     </view>
   </view>
 
-  <view class="preview-grid">
-    <view class="preview-item">
+  <view class="preview-section">
+    <view class="preview-section-title">提交信息预览</view>
+    <view wx:if="{{statusText}}" class="preview-row">
+      <text class="preview-label">当前状态</text>
+      <text class="preview-value">{{statusText}}</text>
+    </view>
+    <view class="preview-row">
       <text class="preview-label">想找室友</text>
       <text class="preview-value">{{genderText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">入住人数</text>
       <text class="preview-value">{{checkinCountText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">期望户型</text>
       <text class="preview-value">{{layoutText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">房间类型</text>
       <text class="preview-value">{{roomTypeText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">预算范围</text>
       <text class="preview-value">{{budgetText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">入住时间</text>
       <text class="preview-value">{{checkinDateText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">中介费</text>
       <text class="preview-value">{{agencyFeeText || '--'}}</text>
     </view>
-    <view class="preview-item">
+    <view class="preview-row">
       <text class="preview-label">生活习惯</text>
       <text class="preview-value multiline">{{lifestyleText || '--'}}</text>
     </view>
-  </view>
-
-  <view class="preview-section">
-    <view class="preview-section-title">自我介绍</view>
-    <view class="preview-section-body">{{introText || '暂无补充说明'}}</view>
+    <view class="preview-row preview-row-intro">
+      <text class="preview-label">自我介绍</text>
+      <text class="preview-value multiline">{{introText || '暂无补充说明'}}</text>
+    </view>
   </view>
 
   <view class="preview-actions">
