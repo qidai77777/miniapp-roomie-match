@@ -1,7 +1,12 @@
-// app.ts
+import { envConfig } from './config/env'
+import { getAuthSession } from './utils/auth'
+
 App<IAppOption>({
-  globalData: {},
+  globalData: {
+    env: envConfig,
+    authSession: getAuthSession(),
+  },
   onLaunch() {
-    // 预留全局初始化逻辑
+    console.info(`当前环境: ${envConfig.label}`, envConfig)
   },
 })

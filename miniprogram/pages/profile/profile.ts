@@ -4,7 +4,12 @@ import {
   type ProfileData,
   type ProfileGender,
 } from '../../utils/roomie'
+import { ensureLoggedIn, fetchCurrentUserProfile, getAuthSession } from '../../utils/auth'
 import { loadProfile, saveProfile } from '../../utils/storage'
+import { request } from '../../utils/request'
+
+let hasPendingSync = false
+let isSyncing = false
 
 type ProfilePageData = {
   profile: ProfileData
@@ -12,6 +17,16 @@ type ProfilePageData = {
   genderText: string
   missingText: string
   hasRequiredProfile: boolean
+}
+
+type UpdateProfilePayload = {
+  id: string
+  nickname: string
+  avatar: string
+  gender?: number
+  age?: number
+  school?: string
+  wxNumber?: string
 }
 
 function computeState(profile: ProfileData) {
@@ -41,8 +56,20 @@ Page({
   } as ProfilePageData,
 
   onShow() {
-    const profile = loadProfile()
-    this.syncProfile(profile)
+    if (!ensureLoggedIn()) {
+      return
+    }
+
+    this.syncProfile(loadProfile())
+    void this.refreshProfileFromServer()
+  },
+
+  onHide() {
+    void this.syncProfileOnLeave()
+  },
+
+  onUnload() {
+    void this.syncProfileOnLeave()
   },
 
   syncProfile(profile: ProfileData) {
@@ -61,6 +88,59 @@ Page({
 
     saveProfile(profile)
     this.syncProfile(profile)
+    hasPendingSync = true
+  },
+
+  async syncProfileOnLeave() {
+    if (!hasPendingSync || isSyncing) {
+      return
+    }
+
+    isSyncing = true
+
+    try {
+      const session = getAuthSession()
+
+      if (!session.userId) {
+        throw new Error('登录态中缺少 userId，无法更新个人信息')
+      }
+
+      const profile = loadProfile()
+
+      await request<boolean, UpdateProfilePayload>({
+        url: '/user/profile',
+        method: 'PUT',
+        data: {
+          id: session.userId,
+          nickname: profile.nickName.trim(),
+          avatar: profile.avatarUrl.trim(),
+          gender: profile.gender === 'male' ? 1 : profile.gender === 'female' ? 2 : undefined,
+          age: profile.age.trim() ? Number(profile.age) : undefined,
+          school: profile.school.trim() || undefined,
+          wxNumber: profile.wechat.trim() || undefined,
+        },
+      })
+
+      hasPendingSync = false
+      await this.refreshProfileFromServer()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '个人资料同步失败'
+      wx.showToast({
+        title: message,
+        icon: 'none',
+      })
+    } finally {
+      isSyncing = false
+    }
+  },
+
+  async refreshProfileFromServer() {
+    try {
+      await fetchCurrentUserProfile()
+      this.syncProfile(loadProfile())
+    } catch {
+      // Keep local cache when remote fetch fails.
+    }
   },
 
   selectGender(e: WechatMiniprogram.BaseEvent<{ value: ProfileGender }>) {
@@ -81,6 +161,7 @@ Page({
   },
 
   goHome() {
+    void this.syncProfileOnLeave()
     wx.redirectTo({ url: '/pages/index/index' })
   },
 })

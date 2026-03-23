@@ -1,8 +1,11 @@
 import {
+  AUTH_STORAGE_KEY,
   createDefaultForm,
   createDefaultProfile,
+  createDefaultAuthSession,
   FORM_STORAGE_KEY,
   PROFILE_STORAGE_KEY,
+  type AuthSession,
   type ProfileData,
   type RoomieFormData,
 } from './roomie'
@@ -22,6 +25,8 @@ export function loadProfile(): ProfileData {
   const raw = safeRead<Partial<ProfileData>>(PROFILE_STORAGE_KEY, fallback)
 
   return {
+    nickName: typeof raw.nickName === 'string' ? raw.nickName : '',
+    avatarUrl: typeof raw.avatarUrl === 'string' ? raw.avatarUrl : '',
     gender: raw.gender === 'male' || raw.gender === 'female' ? raw.gender : '',
     age: typeof raw.age === 'string' ? raw.age : '',
     school: typeof raw.school === 'string' ? raw.school : '',
@@ -31,6 +36,28 @@ export function loadProfile(): ProfileData {
 
 export function saveProfile(profile: ProfileData) {
   wx.setStorageSync(PROFILE_STORAGE_KEY, profile)
+}
+
+export function loadAuthSession(): AuthSession {
+  const fallback = createDefaultAuthSession()
+  const raw = safeRead<Partial<AuthSession>>(AUTH_STORAGE_KEY, fallback)
+
+  return {
+    token: typeof raw.token === 'string' ? raw.token : '',
+    openId: typeof raw.openId === 'string' ? raw.openId : '',
+    userId: typeof raw.userId === 'string' ? raw.userId : '',
+    nickName: typeof raw.nickName === 'string' ? raw.nickName : '',
+    avatarUrl: typeof raw.avatarUrl === 'string' ? raw.avatarUrl : '',
+    expiresAt: typeof raw.expiresAt === 'number' ? raw.expiresAt : null,
+  }
+}
+
+export function saveAuthSession(session: AuthSession) {
+  wx.setStorageSync(AUTH_STORAGE_KEY, session)
+}
+
+export function clearAuthSession() {
+  wx.removeStorageSync(AUTH_STORAGE_KEY)
 }
 
 export function loadForm(): RoomieFormData {

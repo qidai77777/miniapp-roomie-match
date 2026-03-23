@@ -7,24 +7,30 @@
 
     <view class="profile-card">
       <view class="profile-hero">
-        <view class="profile-badge">👤 个人中心</view>
+        <view class="hero-user">
+          <view class="hero-avatar-frame">
+            <view class="hero-avatar-ring"></view>
+            <image wx:if="{{profile.avatarUrl}}" class="hero-avatar" src="{{profile.avatarUrl}}" mode="aspectFill"></image>
+            <view wx:else class="hero-avatar hero-avatar-placeholder">R</view>
+          </view>
+          <view class="hero-user-copy">
+            <view class="hero-nickname">{{profile.nickName || '未授权昵称'}}</view>
+          </view>
+        </view>
         <view class="profile-title">你的 RoomieMatch 档案</view>
-        <view class="profile-subtitle">📌 性别、年龄、学校和微信号在这里统一维护，首页提交匹配时会自动带入。</view>
       </view>
 
       <view class="profile-grid">
         <view wx:if="{{!hasRequiredProfile}}" class="profile-alert">
-          <text class="profile-alert-title">⚠️ 基础资料未完成</text>
-          <text class="profile-alert-text">请先补全{{missingText}}，这些都是匹配表单的必填项。</text>
+          <text class="profile-alert-title">基础资料未完善</text>
+          <text class="profile-alert-text">请先补全{{missingText}}，这些字段会影响后续匹配提交。</text>
         </view>
 
         <view class="profile-panel">
           <view class="panel-head">
             <view>
               <view class="panel-title">基础资料</view>
-              <view class="panel-text">资料会自动保存在当前微信客户端中。</view>
             </view>
-            <view class="panel-tag">自动保存</view>
           </view>
 
           <view class="field-group">
@@ -59,19 +65,23 @@
         <view class="profile-panel summary-panel">
           <view class="panel-title">当前资料</view>
           <view class="summary-row">
-            <text class="summary-key">🧑 性别</text>
+            <text class="summary-key">昵称</text>
+            <text class="summary-val">{{profile.nickName || '未设置'}}</text>
+          </view>
+          <view class="summary-row">
+            <text class="summary-key">性别</text>
             <text class="summary-val">{{genderText}}</text>
           </view>
           <view class="summary-row">
-            <text class="summary-key">🎂 年龄</text>
+            <text class="summary-key">年龄</text>
             <text class="summary-val">{{profile.age || '未设置'}}</text>
           </view>
           <view class="summary-row">
-            <text class="summary-key">🎓 学校</text>
+            <text class="summary-key">学校</text>
             <text class="summary-val">{{profile.school || '未设置'}}</text>
           </view>
           <view class="summary-row">
-            <text class="summary-key">💬 微信号</text>
+            <text class="summary-key">微信号</text>
             <text class="summary-val">{{profile.wechat || '未设置'}}</text>
           </view>
         </view>

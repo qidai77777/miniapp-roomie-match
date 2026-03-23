@@ -1,5 +1,6 @@
 export const PROFILE_STORAGE_KEY = 'roomiematch-profile'
 export const FORM_STORAGE_KEY = 'roomiematch-form'
+export const AUTH_STORAGE_KEY = 'roomiematch-auth'
 
 export const schoolOptions = [
   'Kaplan 新加坡楷博高等教育学院',
@@ -26,10 +27,21 @@ export type HouseType = 'studio' | '1b1b' | '2b1b' | '3b2b' | ''
 export type RoomType = 'master' | 'common' | 'other' | ''
 
 export interface ProfileData {
+  nickName: string
+  avatarUrl: string
   gender: ProfileGender
   age: string
   school: string
   wechat: string
+}
+
+export interface AuthSession {
+  token: string
+  openId: string
+  userId: string
+  nickName: string
+  avatarUrl: string
+  expiresAt: number | null
 }
 
 export interface RoomieFormData {
@@ -53,10 +65,23 @@ export interface RoomieFormData {
 
 export function createDefaultProfile(): ProfileData {
   return {
+    nickName: '',
+    avatarUrl: '',
     gender: '',
     age: '',
     school: '',
     wechat: '',
+  }
+}
+
+export function createDefaultAuthSession(): AuthSession {
+  return {
+    token: '',
+    openId: '',
+    userId: '',
+    nickName: '',
+    avatarUrl: '',
+    expiresAt: null,
   }
 }
 
@@ -95,4 +120,3 @@ export function getProfileGenderText(gender: ProfileGender): string {
   if (gender === 'female') return '女生'
   return '未设置'
 }
-

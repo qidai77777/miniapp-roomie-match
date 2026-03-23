@@ -7,6 +7,7 @@ import {
   type RoomType,
   type RoomieFormData,
 } from '../../utils/roomie'
+import { ensureLoggedIn } from '../../utils/auth'
 import { clearForm, loadForm, loadProfile, saveForm } from '../../utils/storage'
 
 type StepInfo = {
@@ -91,6 +92,10 @@ Page({
   } as IndexPageData,
 
   onShow() {
+    if (!ensureLoggedIn()) {
+      return
+    }
+
     const form = loadForm()
     this.syncForm(form)
     this.setData({
