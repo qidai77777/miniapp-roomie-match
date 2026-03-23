@@ -1,0 +1,90 @@
+<navigation-bar title="个人中心" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y="{{true}}">
+  <view class="page-shell">
+    <view class="bg-orb orb-a"></view>
+    <view class="bg-orb orb-b"></view>
+
+    <view class="profile-card">
+      <view class="profile-hero">
+        <view class="profile-badge">👤 个人中心</view>
+        <view class="profile-title">你的 RoomieMatch 档案</view>
+        <view class="profile-subtitle">📌 性别、年龄、学校和微信号在这里统一维护，首页提交匹配时会自动带入。</view>
+      </view>
+
+      <view class="profile-grid">
+        <view wx:if="{{!hasRequiredProfile}}" class="profile-alert">
+          <text class="profile-alert-title">⚠️ 基础资料未完成</text>
+          <text class="profile-alert-text">请先补全{{missingText}}，这些都是匹配表单的必填项。</text>
+        </view>
+
+        <view class="profile-panel">
+          <view class="panel-head">
+            <view>
+              <view class="panel-title">基础资料</view>
+              <view class="panel-text">资料会自动保存在当前微信客户端中。</view>
+            </view>
+            <view class="panel-tag">自动保存</view>
+          </view>
+
+          <view class="field-group">
+            <view class="field-label">性别 <text class="required">*</text></view>
+            <view class="radio-group">
+              <view class="radio-btn {{profile.gender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectGender">男生</view>
+              <view class="radio-btn {{profile.gender === 'female' ? 'selected' : ''}}" data-value="female" bindtap="selectGender">女生</view>
+            </view>
+          </view>
+
+          <view class="field-group">
+            <view class="field-label">年龄</view>
+            <view class="age-wrap">
+              <input class="field-input" type="number" value="{{profile.age}}" placeholder="请输入年龄" bindinput="onAgeInput" />
+              <view class="age-unit">岁</view>
+            </view>
+          </view>
+
+          <view class="field-group">
+            <view class="field-label">学校 <text class="required">*</text></view>
+            <picker mode="selector" range="{{schoolOptions}}" bindchange="onSchoolChange">
+              <view class="field-select {{profile.school ? '' : 'placeholder'}}">{{profile.school || '请选择学校'}}</view>
+            </picker>
+          </view>
+
+          <view class="field-group">
+            <view class="field-label">微信号 <text class="required">*</text></view>
+            <input class="field-input" value="{{profile.wechat}}" maxlength="50" placeholder="请输入你的微信号" bindinput="onWechatInput" />
+          </view>
+        </view>
+
+        <view class="profile-panel summary-panel">
+          <view class="panel-title">当前资料</view>
+          <view class="summary-row">
+            <text class="summary-key">🧑 性别</text>
+            <text class="summary-val">{{genderText}}</text>
+          </view>
+          <view class="summary-row">
+            <text class="summary-key">🎂 年龄</text>
+            <text class="summary-val">{{profile.age || '未设置'}}</text>
+          </view>
+          <view class="summary-row">
+            <text class="summary-key">🎓 学校</text>
+            <text class="summary-val">{{profile.school || '未设置'}}</text>
+          </view>
+          <view class="summary-row">
+            <text class="summary-key">💬 微信号</text>
+            <text class="summary-val">{{profile.wechat || '未设置'}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>
+
+<view class="bottom-tab">
+  <view class="tab-link" bindtap="goHome">
+    <view class="tab-icon icon-home"></view>
+  </view>
+  <view class="tab-link active">
+    <view class="tab-icon icon-profile"></view>
+  </view>
+</view>

@@ -1,28 +1,278 @@
-<!--index.wxml-->
-<navigation-bar title="Weixin" back="{{false}}" color="black" background="#FFF"></navigation-bar>
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <view class="userinfo">
-      <block wx:if="{{canIUseNicknameComp && !hasUserInfo}}">
-        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
-        </button>
-        <view class="nickname-wrapper">
-          <text class="nickname-label">昵称</text>
-          <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
+<navigation-bar title="RoomieMatch" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y="{{true}}">
+  <view class="page-shell">
+    <view class="bg-orb orb-a"></view>
+    <view class="bg-orb orb-b"></view>
+
+    <view class="form-container">
+      <view wx:if="{{isSuccess}}" class="success-card">
+        <view class="success-badge">
+          <view class="success-check"></view>
         </view>
-      </block>
-      <block wx:elif="{{!hasUserInfo}}">
-        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-        <view wx:else> 请使用2.10.4及以上版本基础库 </view>
-      </block>
-      <block wx:else>
-        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-      </block>
-    </view>
-    <view class="usermotto">
-      <text class="user-motto">{{motto}}</text>
+        <view class="success-title">提交成功</view>
+        <view class="success-desc">🎉 我们已收到你的信息，正在为你匹配更合适的室友。</view>
+        <view class="btn-reset" bindtap="resetForm">重新填写</view>
+      </view>
+
+      <view wx:else class="form-card">
+        <view class="form-header">
+          <view class="hero-top">
+            <view class="brand-mark">
+              <view class="brand-mark-core"></view>
+            </view>
+            <view class="brand-copy">
+              <view class="brand-chip">🏡 RoomieMatch</view>
+              <view class="app-title">拼室友</view>
+              <view class="app-sub">✨ 更适合新加坡留学生的室友匹配</view>
+            </view>
+          </view>
+
+          <view class="progress-wrap">
+            <view class="progress-meta">
+              <text class="progress-label">填写进度</text>
+              <text class="progress-text">{{currentStep}} / {{totalSteps}}</text>
+            </view>
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{progress}}%;"></view>
+            </view>
+          </view>
+
+          <view class="step-title-area">
+            <view class="step-index">{{currentStepIcon}}</view>
+            <view>
+              <view class="step-title">{{currentStepTitle}}</view>
+              <view class="step-subtitle">{{currentStepSubtitle}}</view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{currentStep === 1}}" class="step-body">
+          <view class="field-group {{shakingFields.preferredRoommateGender ? 'shake' : ''}}">
+            <view class="field-label">想找的室友 <text class="required">*</text></view>
+            <view class="radio-group">
+              <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectPreferredGender">
+                <text class="radio-title">男室友</text>
+                <text class="radio-desc">仅匹配男生</text>
+              </view>
+              <view class="radio-btn {{form.preferredRoommateGender === 'female' ? 'selected' : ''}}" data-value="female" bindtap="selectPreferredGender">
+                <text class="radio-title">女室友</text>
+                <text class="radio-desc">仅匹配女生</text>
+              </view>
+              <view class="radio-btn {{form.preferredRoommateGender === 'any' ? 'selected' : ''}}" data-value="any" bindtap="selectPreferredGender">
+                <text class="radio-title">都可以</text>
+                <text class="radio-desc">按条件综合匹配</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.occupantCount ? 'shake' : ''}}">
+            <view class="field-label">入住人数 <text class="required">*</text></view>
+            <view class="field-hint">如果是情侣或夫妻一起找房，请选择 2 人入住。</view>
+            <view class="radio-group">
+              <view class="radio-btn {{form.occupantCount === '1' ? 'selected' : ''}}" data-value="1" bindtap="selectOccupantCount">
+                <text class="radio-title">1 人入住</text>
+                <text class="radio-desc">个人找室友</text>
+              </view>
+              <view class="radio-btn {{form.occupantCount === '2' ? 'selected' : ''}}" data-value="2" bindtap="selectOccupantCount">
+                <text class="radio-title">2 人入住</text>
+                <text class="radio-desc">情侣 / 夫妻</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{currentStep === 2}}" class="step-body">
+          <view class="field-group {{shakingFields.cleanLevel ? 'shake' : ''}}">
+            <view class="field-label">个人整洁程度 <text class="required">*</text></view>
+            <view class="field-hint">1 = 随意自在，5 = 极致整洁</view>
+            <view class="clean-level-wrap">
+              <view class="level-btn {{form.cleanLevel === '1' ? 'selected' : ''}}" data-value="1" bindtap="selectCleanLevel">1</view>
+              <view class="level-btn {{form.cleanLevel === '2' ? 'selected' : ''}}" data-value="2" bindtap="selectCleanLevel">2</view>
+              <view class="level-btn {{form.cleanLevel === '3' ? 'selected' : ''}}" data-value="3" bindtap="selectCleanLevel">3</view>
+              <view class="level-btn {{form.cleanLevel === '4' ? 'selected' : ''}}" data-value="4" bindtap="selectCleanLevel">4</view>
+              <view class="level-btn {{form.cleanLevel === '5' ? 'selected' : ''}}" data-value="5" bindtap="selectCleanLevel">5</view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.smoke ? 'shake' : ''}}">
+            <view class="field-label">吸烟 <text class="required">*</text></view>
+            <view class="bool-group">
+              <view class="bool-btn yes {{form.smoke === true ? 'selected' : ''}}" data-value="true" bindtap="selectSmoke">
+                <text class="bool-title">吸烟</text>
+                <text class="bool-desc">可接受烟味环境</text>
+              </view>
+              <view class="bool-btn no {{form.smoke === false ? 'selected' : ''}}" data-value="false" bindtap="selectSmoke">
+                <text class="bool-title">不吸烟</text>
+                <text class="bool-desc">更偏好无烟空间</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.drink ? 'shake' : ''}}">
+            <view class="field-label">饮酒 <text class="required">*</text></view>
+            <view class="bool-group">
+              <view class="bool-btn yes {{form.drink === true ? 'selected' : ''}}" data-value="true" bindtap="selectDrink">
+                <text class="bool-title">会喝酒</text>
+                <text class="bool-desc">偶尔饮酒</text>
+              </view>
+              <view class="bool-btn no {{form.drink === false ? 'selected' : ''}}" data-value="false" bindtap="selectDrink">
+                <text class="bool-title">不喝酒</text>
+                <text class="bool-desc">更安静规律</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="section-divider"><text>🙋 关于访客</text></view>
+
+          <view class="field-group {{shakingFields.hasGuest ? 'shake' : ''}}">
+            <view class="field-label">你本人是否会带访客回家？<text class="required">*</text></view>
+            <view class="bool-group">
+              <view class="bool-btn yes {{form.hasGuest === true ? 'selected' : ''}}" data-value="true" bindtap="selectHasGuest">
+                <text class="bool-title">会带访客</text>
+                <text class="bool-desc">需要与室友协调</text>
+              </view>
+              <view class="bool-btn no {{form.hasGuest === false ? 'selected' : ''}}" data-value="false" bindtap="selectHasGuest">
+                <text class="bool-title">不会带访客</text>
+                <text class="bool-desc">更偏好安静环境</text>
+              </view>
+            </view>
+          </view>
+
+          <view wx:if="{{form.hasGuest === true}}" class="field-group {{shakingFields.guestOvernight ? 'shake' : ''}}">
+            <view class="field-label">你的访客是否会在家过夜？<text class="required">*</text></view>
+            <view class="bool-group">
+              <view class="bool-btn yes {{form.guestOvernight === true ? 'selected' : ''}}" data-value="true" bindtap="selectGuestOvernight">
+                <text class="bool-title">有时过夜</text>
+                <text class="bool-desc">需提前沟通安排</text>
+              </view>
+              <view class="bool-btn no {{form.guestOvernight === false ? 'selected' : ''}}" data-value="false" bindtap="selectGuestOvernight">
+                <text class="bool-title">不会过夜</text>
+                <text class="bool-desc">更稳定的同住节奏</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{currentStep === 3}}" class="step-body">
+          <view class="field-group {{shakingFields.houseType ? 'shake' : ''}}">
+            <view class="field-label">期望户型 <text class="required">*</text></view>
+            <view class="field-hint">前面的数字代表卧室数量，后面的数字代表卫生间数量，Studio 表示开放式一室。</view>
+            <view class="chip-group">
+              <block wx:for="{{houseTypeOptions}}" wx:key="value">
+                <view class="chip {{form.houseType === item.value ? 'selected' : ''}}" data-value="{{item.value}}" bindtap="selectHouseType">{{item.label}}</view>
+              </block>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.roomType ? 'shake' : ''}}">
+            <view class="field-label">想住房间类型 <text class="required">*</text></view>
+            <view class="radio-group">
+              <view class="radio-btn {{form.roomType === 'master' ? 'selected' : ''}}" data-value="master" bindtap="selectRoomType">
+                <text class="radio-title">主人房</text>
+                <text class="radio-desc">独立卫浴优先</text>
+              </view>
+              <view class="radio-btn {{form.roomType === 'common' ? 'selected' : ''}}" data-value="common" bindtap="selectRoomType">
+                <text class="radio-title">普通房</text>
+                <text class="radio-desc">预算更灵活</text>
+              </view>
+              <view class="radio-btn {{form.roomType === 'other' ? 'selected' : ''}}" data-value="other" bindtap="selectRoomType">
+                <text class="radio-title">都可以</text>
+                <text class="radio-desc">以匹配度优先</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.agencyFee ? 'shake' : ''}}">
+            <view class="field-label">是否接受支付中介费？<text class="required">*</text></view>
+            <view class="field-hint">新加坡租房有时需要支付半个月到一个月租金作为中介费。</view>
+            <view class="bool-group">
+              <view class="bool-btn yes {{form.agencyFee === true ? 'selected' : ''}}" data-value="true" bindtap="selectAgencyFee">
+                <text class="bool-title">可以接受</text>
+                <text class="bool-desc">房源范围更大</text>
+              </view>
+              <view class="bool-btn no {{form.agencyFee === false ? 'selected' : ''}}" data-value="false" bindtap="selectAgencyFee">
+                <text class="bool-title">不接受</text>
+                <text class="bool-desc">仅看免中介房源</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.budget ? 'shake' : ''}}">
+            <view class="field-label">月租预算（SGD）<text class="required">*</text></view>
+            <view class="budget-wrap">
+              <view class="budget-input-wrap">
+                <text class="budget-symbol">$</text>
+                <input class="field-input budget-input" type="number" value="{{form.budgetMin}}" placeholder="最低" bindinput="onBudgetMinInput" />
+              </view>
+              <text class="budget-sep">-</text>
+              <view class="budget-input-wrap">
+                <text class="budget-symbol">$</text>
+                <input class="field-input budget-input" type="number" value="{{form.budgetMax}}" placeholder="最高" bindinput="onBudgetMaxInput" />
+              </view>
+            </view>
+          </view>
+
+          <view class="field-group {{shakingFields.moveIn ? 'shake' : ''}}">
+            <view class="field-label">期望入住时间 <text class="required">*</text></view>
+            <view class="movein-wrap">
+              <picker mode="selector" range="{{moveInYears}}" bindchange="onMoveInYearChange">
+                <view class="field-select movein-select {{form.moveInYear ? '' : 'placeholder'}}">{{form.moveInYear ? form.moveInYear + ' 年' : '年份'}}</view>
+              </picker>
+              <picker mode="selector" range="{{moveInMonths}}" bindchange="onMoveInMonthChange">
+                <view class="field-select movein-select {{form.moveInMonth ? '' : 'placeholder'}}">{{form.moveInMonth ? form.moveInMonth + ' 月' : '月份'}}</view>
+              </picker>
+            </view>
+          </view>
+        </view>
+
+        <view wx:if="{{currentStep === 4}}" class="step-body">
+          <view class="field-group {{shakingFields.intro ? 'shake' : ''}}">
+            <view class="field-label">补充说明 <text class="required">*</text></view>
+            <view class="field-hint">至少 10 个字，可以介绍自己、补充对室友的要求，或说明你更在意的居住习惯。</view>
+            <textarea class="field-textarea" value="{{form.intro}}" maxlength="300" placeholder="例如：我是个安静、作息规律的人，希望公共区域保持整洁，晚间沟通尽量轻声。" bindinput="onIntroInput"></textarea>
+            <view class="char-count">{{form.intro.length}} / 300</view>
+          </view>
+
+          <view wx:if="{{!profileReady}}" class="profile-warning">
+            <text class="profile-warning-title">个人资料还没填完整</text>
+            <text class="profile-warning-text">请先到个人中心补全性别、学校和微信号，否则无法提交匹配。</text>
+          </view>
+
+          <view class="preview-card">
+            <view class="preview-title">信息预览</view>
+            <view class="preview-row">
+              <text class="preview-key">🏠 户型</text>
+              <text class="preview-val">{{houseTypePreview}}</text>
+            </view>
+            <view class="preview-row">
+              <text class="preview-key">💰 预算</text>
+              <text class="preview-val">{{budgetText}}</text>
+            </view>
+            <view class="preview-row">
+              <text class="preview-key">📅 入住</text>
+              <text class="preview-val">{{moveInText}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="form-footer">
+          <view wx:if="{{currentStep > 1}}" class="btn-prev" bindtap="prevStep">上一步</view>
+          <view wx:if="{{currentStep < totalSteps}}" class="btn-next {{currentStep === 1 ? 'full' : ''}}" bindtap="nextStep">下一步</view>
+          <view wx:if="{{currentStep === totalSteps}}" class="btn-submit {{isSubmitting ? 'loading' : ''}}" bindtap="handleSubmit">
+            <text>{{isSubmitting ? '匹配中...' : '提交信息，开始匹配'}}</text>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 </scroll-view>
+
+<view class="bottom-tab">
+  <view class="tab-link active">
+    <view class="tab-icon icon-home"></view>
+  </view>
+  <view class="tab-link" bindtap="goProfile">
+    <view class="tab-icon icon-profile"></view>
+  </view>
+</view>
