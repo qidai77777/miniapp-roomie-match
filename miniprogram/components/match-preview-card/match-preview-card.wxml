@@ -99,13 +99,14 @@
                 </view>
                 <view class="group-member-actions">
                   <view
-                  class="reject-member-btn {{rejectingMatchId === item.matchId ? 'disabled' : ''}}"
-                  data-match-id="{{item.matchId}}"
-                  bindtap="onReject"
-                >
-                  {{rejectingMatchId === item.matchId ? '处理中...' : '我不满意这个室友'}}
+                    wx:if="{{myDecisionText === '待确认'}}"
+                    class="reject-member-btn {{rejectingMatchId === item.matchId ? 'disabled' : ''}}"
+                    data-match-id="{{item.matchId}}"
+                    bindtap="onReject"
+                  >
+                    {{rejectingMatchId === item.matchId ? '处理中...' : '我不满意这个室友'}}
+                  </view>
                 </view>
-              </view>
               </view>
             </scroll-view>
           </swiper-item>

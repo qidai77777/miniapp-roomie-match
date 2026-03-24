@@ -131,6 +131,7 @@ type IndexPageData = {
   currentStepIcon: string
   isSubmitting: boolean
   isSuccess: boolean
+  showServiceQrModal: boolean
   profileReady: boolean
   hasCurrentMatch: boolean
   hasCurrentGroup: boolean
@@ -145,12 +146,14 @@ type IndexPageData = {
   budgetText: string
   moveInText: string
   houseTypePreview: string
+  serviceQrImageUrl: string
   moveInYears: string[]
   moveInMonths: string[]
   houseTypeOptions: Array<{ value: HouseType; label: string }>
 }
 
 const totalSteps = 4
+const serviceQrImageUrl = 'https://imgloc.com/image/OW3EOA'
 const stepTitles: StepInfo[] = [
   { title: '基本信息', subtitle: '先选择室友偏好和入住人数', icon: '👋' },
   { title: '生活习惯', subtitle: '确认日常作息和相处方式', icon: '🌶' },
@@ -513,6 +516,7 @@ Page({
     currentStepIcon: stepTitles[0].icon,
     isSubmitting: false,
     isSuccess: false,
+    showServiceQrModal: false,
     profileReady: false,
     hasCurrentMatch: false,
     hasCurrentGroup: false,
@@ -527,6 +531,7 @@ Page({
     budgetText: '--',
     moveInText: '--',
     houseTypePreview: '--',
+    serviceQrImageUrl,
     moveInYears: getCurrentMoveInYears(),
     moveInMonths: getMoveInMonths(),
     houseTypeOptions: [
@@ -854,6 +859,7 @@ Page({
       this.setData({
         isSubmitting: false,
         isSuccess: true,
+        showServiceQrModal: true,
       })
 
       console.info('室友匹配提交成功', {
@@ -927,6 +933,10 @@ Page({
         icon: 'none',
       })
 
+      this.setData({
+        showServiceQrModal: true,
+      })
+
       await this.fetchCurrentMatch()
     } catch (error) {
       const message = error instanceof Error ? error.message : '确认失败，请稍后重试'
@@ -997,4 +1007,12 @@ Page({
   goProfile() {
     wx.redirectTo({ url: '/pages/profile/profile' })
   },
+
+  closeServiceQrModal() {
+    this.setData({
+      showServiceQrModal: false,
+    })
+  },
+
+  noop() {},
 })

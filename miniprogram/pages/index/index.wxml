@@ -305,3 +305,12 @@
     <view class="tab-icon icon-profile"></view>
   </view>
 </view>
+
+<view wx:if="{{showServiceQrModal}}" class="qr-modal-mask" bindtap="closeServiceQrModal">
+  <view class="qr-modal-card" catchtap="noop">
+    <view class="qr-modal-title">添加客服微信</view>
+    <image class="qr-modal-image" src="{{serviceQrImageUrl}}" mode="aspectFit"></image>
+    <view class="qr-modal-desc">请添加客服微信，匹配成功后将为您创建微信群</view>
+    <view class="qr-modal-btn" bindtap="closeServiceQrModal">我知道了</view>
+  </view>
+</view>
