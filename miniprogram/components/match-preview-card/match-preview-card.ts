@@ -4,6 +4,11 @@ Component({
     statusHintText: { type: String, value: '' },
     canConfirm: { type: Boolean, value: false },
     canRewrite: { type: Boolean, value: true },
+    groupStatusCode: { type: String, value: '' },
+    groupStatusText: { type: String, value: '' },
+    myDecisionText: { type: String, value: '' },
+    confirmedProgressText: { type: String, value: '' },
+    totalBudgetText: { type: String, value: '' },
     introText: { type: String, value: '' },
     genderText: { type: String, value: '' },
     checkinCountText: { type: String, value: '' },
@@ -15,10 +20,18 @@ Component({
     checkinDateText: { type: String, value: '' },
     hasCurrentGroup: { type: Boolean, value: false },
     currentGroupMembers: { type: Array, value: [] },
+    isConfirming: { type: Boolean, value: false },
+    rejectingMatchId: { type: String, value: '' },
   },
   methods: {
     onConfirm() {
       this.triggerEvent('confirm')
+    },
+    onReject(e: WechatMiniprogram.BaseEvent<{ matchId?: string }>) {
+      const matchId = String(e.currentTarget.dataset.matchId || '')
+      if (!matchId) return
+
+      this.triggerEvent('reject', { matchId })
     },
     onRewrite() {
       this.triggerEvent('rewrite')

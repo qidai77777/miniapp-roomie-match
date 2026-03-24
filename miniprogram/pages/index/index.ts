@@ -48,9 +48,10 @@ type CurrentMatchRecord = {
 type CurrentMatchResponse = CurrentMatchRecord | null | { code?: number; data?: CurrentMatchRecord | null; msg?: string }
 
 type CurrentGroupMemberRecord = {
-  matchId?: number | null
-  userId?: number | null
+  matchId?: string | number | null
+  userId?: string | number | null
   currentStatus?: string
+  decision?: string
   expectedGender?: number | null
   checkinCount?: number | null
   expectedLayout?: string
@@ -63,16 +64,37 @@ type CurrentGroupMemberRecord = {
   selfIntroduction?: string
 }
 
+type CurrentMatchGroupRecord = {
+  relationId?: string | number | null
+  groupStatus?: string
+  myDecision?: string
+  confirmedCount?: number | null
+  memberCount?: number | null
+  members?: CurrentGroupMemberRecord[] | null
+}
+
 type CurrentGroupResponse =
-  | CurrentGroupMemberRecord[]
-  | { code?: number; data?: CurrentGroupMemberRecord[] | null; msg?: string }
+  | CurrentMatchGroupRecord
+  | { code?: number; data?: CurrentMatchGroupRecord | null; msg?: string }
   | null
+
+type MatchDecisionResponse = {
+  allConfirmed?: boolean
+  groupStatus?: string
+  confirmedCount?: number | null
+  memberCount?: number | null
+}
 
 type MatchPreviewData = {
   statusText: string
   statusHintText: string
   canConfirm: boolean
   canRewrite: boolean
+  groupStatusCode: string
+  groupStatusText: string
+  myDecisionText: string
+  confirmedProgressText: string
+  totalBudgetText: string
   introText: string
   genderText: string
   checkinCountText: string
@@ -85,8 +107,10 @@ type MatchPreviewData = {
 }
 
 type GroupMemberPreviewData = {
+  matchId: string
   memberTitle: string
   statusText: string
+  decisionText: string
   genderText: string
   checkinCountText: string
   layoutText: string
@@ -110,6 +134,10 @@ type IndexPageData = {
   profileReady: boolean
   hasCurrentMatch: boolean
   hasCurrentGroup: boolean
+  currentRelationId: string
+  myGroupDecision: string
+  isConfirmingGroup: boolean
+  rejectingMatchId: string
   matchPreview: MatchPreviewData
   currentGroupMembers: GroupMemberPreviewData[]
   form: RoomieFormData
@@ -177,12 +205,84 @@ function getMatchStatusText(status?: string): string {
     case 'submitted':
       return '匹配中'
     case 'matched':
-      return '待确认'
+      return '已匹配'
     case 'confirmed':
       return '已确认'
     default:
       return status
   }
+}
+
+function getDecisionText(decision?: string): string {
+  if (!decision) return '待确认'
+
+  switch (decision) {
+    case 'pending':
+      return '待确认'
+    case 'confirmed':
+      return '已确认'
+    case 'rejected':
+      return '已拒绝'
+    default:
+      return decision
+  }
+}
+
+function getGroupStatusText(status?: string): string {
+  if (!status) return '--'
+
+  switch (status) {
+    case 'pending_confirm':
+      return '待确认'
+    case 'success':
+      return '匹配成功'
+    case 'failed':
+      return '匹配失败'
+    default:
+      return status
+  }
+}
+
+function getConfirmProgressText(confirmedCount?: number | null, memberCount?: number | null): string {
+  if (typeof confirmedCount === 'number' && typeof memberCount === 'number' && memberCount > 0) {
+    return `${confirmedCount}/${memberCount} 人已确认`
+  }
+
+  return '--'
+}
+
+function getTotalBudgetText(selfRecord: CurrentMatchRecord, members: CurrentGroupMemberRecord[]): string {
+  const totals = [selfRecord, ...members].reduce(
+    (result, item) => {
+      const min = typeof item.budgetMin === 'number' ? item.budgetMin : 0
+      const max = typeof item.budgetMax === 'number' ? item.budgetMax : 0
+
+      return {
+        min: result.min + min,
+        max: result.max + max,
+      }
+    },
+    { min: 0, max: 0 },
+  )
+
+  if (totals.min > 0 && totals.max > 0) {
+    return `S$${totals.min} - S$${totals.max}`
+  }
+
+  if (totals.min > 0) {
+    return `S$${totals.min}+`
+  }
+
+  if (totals.max > 0) {
+    return `<= S$${totals.max}`
+  }
+
+  return '--'
+}
+
+function normalizeId(value?: string | number | null): string {
+  if (value === null || value === undefined) return ''
+  return String(value)
 }
 
 function buildSubmitPayload(form: RoomieFormData): SubmitMatchPayload {
@@ -228,20 +328,16 @@ function getCurrentMatchRecord(response: CurrentMatchResponse): CurrentMatchReco
   return record
 }
 
-function getCurrentGroupRecords(response: CurrentGroupResponse): CurrentGroupMemberRecord[] {
+function getCurrentGroupRecord(response: CurrentGroupResponse): CurrentMatchGroupRecord | null {
   if (!response) {
-    return []
+    return null
   }
 
-  if (Array.isArray(response)) {
-    return response
+  if (typeof response === 'object' && 'data' in response) {
+    return response.data || null
   }
 
-  if (typeof response === 'object' && 'data' in response && Array.isArray(response.data)) {
-    return response.data
-  }
-
-  return []
+  return response
 }
 
 function getGenderText(value?: number | null): string {
@@ -335,6 +431,11 @@ function createEmptyMatchPreview(): MatchPreviewData {
     statusHintText: '',
     canConfirm: false,
     canRewrite: true,
+    groupStatusCode: '',
+    groupStatusText: '',
+    myDecisionText: '',
+    confirmedProgressText: '',
+    totalBudgetText: '',
     introText: '',
     genderText: '',
     checkinCountText: '',
@@ -361,6 +462,11 @@ function buildMatchPreview(record: CurrentMatchRecord): MatchPreviewData {
     statusHintText: isSingleRoom ? '单人间无需匹配室友，可直接入住' : '',
     canConfirm: record.matchStatus === 'matched' && !isSingleRoom,
     canRewrite: record.matchStatus !== 'matched' && record.matchStatus !== 'confirmed',
+    groupStatusCode: '',
+    groupStatusText: '',
+    myDecisionText: '',
+    confirmedProgressText: '',
+    totalBudgetText: '',
     introText: record.selfIntroduction || '',
     genderText: getGenderText(record.expectedGender),
     checkinCountText: getCheckinCountText(record.checkinCount),
@@ -381,8 +487,10 @@ function buildGroupMemberPreview(
   const isCurrentUser = currentUserId !== '' && String(member.userId || '') === currentUserId
 
   return {
-    memberTitle: isCurrentUser ? '我的信息' : `分组成员 ${index + 1}`,
+    matchId: normalizeId(member.matchId),
+    memberTitle: isCurrentUser ? '我的信息' : `匹配室友 ${index + 1}`,
     statusText: getMatchStatusText(member.currentStatus),
+    decisionText: getDecisionText(member.decision),
     genderText: getGenderText(member.expectedGender),
     checkinCountText: getCheckinCountText(member.checkinCount),
     layoutText: getLayoutText(member.expectedLayout),
@@ -408,6 +516,10 @@ Page({
     profileReady: false,
     hasCurrentMatch: false,
     hasCurrentGroup: false,
+    currentRelationId: '',
+    myGroupDecision: '',
+    isConfirmingGroup: false,
+    rejectingMatchId: '',
     matchPreview: createEmptyMatchPreview(),
     currentGroupMembers: [],
     form: loadForm(),
@@ -470,6 +582,8 @@ Page({
         this.setData({
           hasCurrentMatch: false,
           hasCurrentGroup: false,
+          currentRelationId: '',
+          myGroupDecision: '',
           matchPreview: createEmptyMatchPreview(),
           currentGroupMembers: [],
         })
@@ -477,33 +591,55 @@ Page({
       }
 
       let currentGroupMembers: GroupMemberPreviewData[] = []
-      const session = loadAuthSession()
+      let currentGroup: CurrentMatchGroupRecord | null = null
+      let currentRelationId = ''
+      let myGroupDecision = ''
       const isSingleRoom = isSingleRoomLayout(record.expectedLayout)
 
-      if (record.matchStatus === 'matched' && !isSingleRoom && session.userId) {
+      if (record.matchStatus === 'matched' && !isSingleRoom) {
         try {
           const groupResponse = await request<CurrentGroupResponse>({
-            url: `/match-relation/current-group/${session.userId}`,
+            url: '/match-relation/current-group',
             method: 'GET',
           })
-          currentGroupMembers = getCurrentGroupRecords(groupResponse).map((member, index) =>
+          currentGroup = getCurrentGroupRecord(groupResponse)
+          const session = loadAuthSession()
+          currentRelationId = normalizeId(currentGroup?.relationId)
+          myGroupDecision = currentGroup?.myDecision || ''
+          currentGroupMembers = (currentGroup?.members || []).map((member, index) =>
             buildGroupMemberPreview(member, index, session.userId),
           )
         } catch (error) {
+          currentRelationId = ''
+          myGroupDecision = ''
           currentGroupMembers = []
         }
       }
 
+      const matchPreview = buildMatchPreview(record)
+
       this.setData({
         hasCurrentMatch: true,
         hasCurrentGroup: currentGroupMembers.length > 0,
-        matchPreview: buildMatchPreview(record),
+        currentRelationId,
+        myGroupDecision,
+        matchPreview: {
+          ...matchPreview,
+          groupStatusCode: currentGroup?.groupStatus || '',
+          groupStatusText: getGroupStatusText(currentGroup?.groupStatus),
+          myDecisionText: getDecisionText(myGroupDecision),
+          confirmedProgressText: getConfirmProgressText(currentGroup?.confirmedCount, currentGroup?.memberCount),
+          totalBudgetText: getTotalBudgetText(record, currentGroup?.members || []),
+          canConfirm: matchPreview.canConfirm && currentRelationId !== '' && myGroupDecision !== 'confirmed',
+        },
         currentGroupMembers,
       })
     } catch (error) {
       this.setData({
         hasCurrentMatch: false,
         hasCurrentGroup: false,
+        currentRelationId: '',
+        myGroupDecision: '',
         matchPreview: createEmptyMatchPreview(),
         currentGroupMembers: [],
       })
@@ -753,15 +889,105 @@ Page({
     this.setData({
       hasCurrentMatch: false,
       hasCurrentGroup: false,
+      currentRelationId: '',
+      myGroupDecision: '',
       currentGroupMembers: [],
     })
   },
 
-  handleConfirmGroup() {
-    wx.showToast({
-      title: '请提供确认接口后接入',
-      icon: 'none',
-    })
+  async handleConfirmGroup() {
+    if (this.data.isConfirmingGroup || !this.data.currentRelationId) return
+
+    try {
+      const modalResult = await wx.showModal({
+        title: '确认当前分组',
+        content: '确认后会进入分组确认流程，待所有成员确认完成后匹配成功。',
+      })
+
+      if (!modalResult.confirm) {
+        return
+      }
+
+      this.setData({
+        isConfirmingGroup: true,
+      })
+
+      const response = await request<
+        MatchDecisionResponse | { code?: number; data?: MatchDecisionResponse | null; msg?: string },
+        { relationId: string }
+      >({
+        url: '/match-relation/confirm',
+        method: 'POST',
+        data: { relationId: this.data.currentRelationId },
+      })
+      const result = typeof response === 'object' && response !== null && 'data' in response ? response.data : response
+
+      wx.showToast({
+        title: result?.allConfirmed ? '分组已全部确认' : '已确认，等待其他成员',
+        icon: 'none',
+      })
+
+      await this.fetchCurrentMatch()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '确认失败，请稍后重试'
+      wx.showToast({
+        title: message,
+        icon: 'none',
+      })
+    } finally {
+      this.setData({
+        isConfirmingGroup: false,
+      })
+    }
+  },
+
+  async handleRejectGroupMember(e: WechatMiniprogram.CustomEvent<{ matchId?: string }>) {
+    const targetMatchId = normalizeId(e.detail?.matchId)
+    if (this.data.rejectingMatchId || !this.data.currentRelationId || !targetMatchId) return
+
+    try {
+      const modalResult = await wx.showModal({
+        title: '拒绝该分组成员',
+        content: '拒绝后当前分组会失效，并重新进入匹配流程。',
+      })
+
+      if (!modalResult.confirm) {
+        return
+      }
+
+      this.setData({
+        rejectingMatchId: targetMatchId,
+      })
+
+      await request<
+        boolean | { code?: number; data?: boolean; msg?: string },
+        { relationId: string; targetMatchId: string }
+      >({
+        url: '/match-relation/reject',
+        method: 'POST',
+        data: {
+          relationId: this.data.currentRelationId,
+          targetMatchId,
+        },
+      })
+
+      wx.showToast({
+        title: '已拒绝，正在重新匹配',
+        icon: 'none',
+      })
+
+      await this.fetchCurrentMatch()
+    } catch (error) {
+      const message = error instanceof Error ? error.message : '拒绝失败，请稍后重试'
+      wx.showToast({
+        title: message,
+        icon: 'none',
+      })
+    } finally {
+      this.setData({
+        rejectingMatchId: '',
+      })
+    }
   },
 
   goHome() {

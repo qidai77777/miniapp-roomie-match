@@ -2,68 +2,119 @@
   <view class="preview-hero">
     <view>
       <view class="preview-chip">{{hasCurrentGroup ? '当前匹配分组' : '当前匹配记录'}}</view>
-      <view class="preview-title">{{statusHintText ? '单人间已可直接入住' : hasCurrentGroup ? '已为你找到分组，等待确认' : '你已经提交过匹配信息'}}</view>
-      <view class="preview-desc">{{statusHintText || (hasCurrentGroup ? '这里展示的是你当前所在分组的成员偏好信息，请先预览确认。' : '这里展示的是你最近一次提交的内容，可以先快速确认，再决定是否重新填写。')}}</view>
+      <view class="preview-title">
+        {{
+          statusHintText
+            ? '单人间已可直接入住'
+            : hasCurrentGroup
+              ? '已为你找到分组，等待确认'
+              : statusText === '匹配中'
+                ? '正在为你匹配室友'
+                : '你已经提交过匹配信息'
+        }}
+      </view>
+      <view class="preview-desc">
+        {{
+          statusHintText ||
+            (hasCurrentGroup
+              ? '这里展示的是你当前所在分组的成员偏好信息，请先预览确认。'
+              : statusText === '匹配中'
+                ? '你的匹配信息已经提交成功，系统正在根据条件为你寻找更合适的室友。'
+                : '这里展示的是你最近一次提交的内容，可以先快速确认，再决定是否重新填写。')
+        }}
+      </view>
     </view>
   </view>
 
   <view wx:if="{{hasCurrentGroup}}" class="preview-section">
     <view class="preview-section-title">匹配室友预览</view>
+    <view class="group-section-hint">每张卡片对应一个匹配帖子，你可以单独拒绝某一条帖子，不影响你查看其他帖子信息。</view>
+    <view class="group-summary">
+      <view class="group-summary-item">
+        <text class="group-summary-label">分组状态</text>
+        <text class="group-summary-value">{{groupStatusText || '--'}}</text>
+      </view>
+      <view class="group-summary-item">
+        <text class="group-summary-label">我的确认</text>
+        <text class="group-summary-value">{{myDecisionText || '--'}}</text>
+      </view>
+      <view class="group-summary-item full">
+        <text class="group-summary-label">确认进度</text>
+        <text class="group-summary-value">{{confirmedProgressText || '--'}}</text>
+      </view>
+      <view class="group-summary-item full">
+        <text class="group-summary-label">总预算</text>
+        <text class="group-summary-value">{{totalBudgetText || '--'}}</text>
+      </view>
+    </view>
     <view class="group-member-swiper-wrap">
       <swiper class="group-member-swiper" indicator-dots="{{currentGroupMembers.length > 1}}" circular="{{false}}" previous-margin="0rpx" next-margin="0rpx">
         <block wx:for="{{currentGroupMembers}}" wx:key="index">
           <swiper-item>
-            <view class="group-member-card">
+            <scroll-view class="group-member-scroll" scroll-y="{{true}}">
+              <view class="group-member-card">
               <view class="group-member-head">
-                <text class="group-member-title">{{item.memberTitle}}</text>
-                <text class="group-member-status">{{item.statusText || '--'}}</text>
+                <view class="group-member-head-main">
+                  <text class="group-member-title">{{item.memberTitle}}</text>
+                </view>
+                <text class="group-member-status">{{item.decisionText || item.statusText || '--'}}</text>
               </view>
-              <view class="group-member-grid">
-                <view class="group-member-item">
-                  <text class="group-member-label">想找室友</text>
-                  <text class="group-member-value">{{item.genderText || '--'}}</text>
+                <view class="group-member-grid">
+                  <view class="group-member-item">
+                    <text class="group-member-label">想找室友</text>
+                    <text class="group-member-value">{{item.genderText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">入住人数</text>
+                    <text class="group-member-value">{{item.checkinCountText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">期望户型</text>
+                    <text class="group-member-value">{{item.layoutText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">房间类型</text>
+                    <text class="group-member-value">{{item.roomTypeText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">预算范围</text>
+                    <text class="group-member-value">{{item.budgetText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">入住时间</text>
+                    <text class="group-member-value">{{item.checkinDateText || '--'}}</text>
+                  </view>
+                  <view class="group-member-item">
+                    <text class="group-member-label">中介费</text>
+                    <text class="group-member-value">{{item.agencyFeeText || '--'}}</text>
+                  </view>
                 </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">入住人数</text>
-                  <text class="group-member-value">{{item.checkinCountText || '--'}}</text>
+                <view class="group-member-block">
+                  <text class="group-member-label">生活习惯</text>
+                  <text class="group-member-value multiline">{{item.lifestyleText || '--'}}</text>
                 </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">期望户型</text>
-                  <text class="group-member-value">{{item.layoutText || '--'}}</text>
+                <view class="group-member-block">
+                  <text class="group-member-label">自我介绍</text>
+                  <text class="group-member-value multiline">{{item.introText || '暂无补充说明'}}</text>
                 </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">房间类型</text>
-                  <text class="group-member-value">{{item.roomTypeText || '--'}}</text>
-                </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">预算范围</text>
-                  <text class="group-member-value">{{item.budgetText || '--'}}</text>
-                </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">入住时间</text>
-                  <text class="group-member-value">{{item.checkinDateText || '--'}}</text>
-                </view>
-                <view class="group-member-item">
-                  <text class="group-member-label">中介费</text>
-                  <text class="group-member-value">{{item.agencyFeeText || '--'}}</text>
+                <view class="group-member-actions">
+                  <view
+                  class="reject-member-btn {{rejectingMatchId === item.matchId ? 'disabled' : ''}}"
+                  data-match-id="{{item.matchId}}"
+                  bindtap="onReject"
+                >
+                  {{rejectingMatchId === item.matchId ? '处理中...' : '我不满意这个室友'}}
                 </view>
               </view>
-              <view class="group-member-block">
-                <text class="group-member-label">生活习惯</text>
-                <text class="group-member-value multiline">{{item.lifestyleText || '--'}}</text>
               </view>
-              <view class="group-member-block">
-                <text class="group-member-label">自我介绍</text>
-                <text class="group-member-value multiline">{{item.introText || '暂无补充说明'}}</text>
-              </view>
-            </view>
+            </scroll-view>
           </swiper-item>
         </block>
       </swiper>
     </view>
   </view>
 
-  <view class="preview-section">
+  <view wx:if="{{groupStatusCode !== 'pending_confirm' && groupStatusCode !== 'success'}}" class="preview-section">
     <view class="preview-section-title">提交信息预览</view>
     <view wx:if="{{statusText}}" class="preview-row">
       <text class="preview-label">当前状态</text>
@@ -112,7 +163,9 @@
   </view>
 
   <view class="preview-actions">
-    <view wx:if="{{canConfirm}}" class="confirm-btn" bindtap="onConfirm">确认匹配</view>
+    <view wx:if="{{canConfirm}}" class="confirm-btn {{isConfirming ? 'disabled' : ''}}" bindtap="onConfirm">
+      {{isConfirming ? '确认中...' : '确认匹配'}}
+    </view>
     <view wx:if="{{canRewrite}}" class="rewrite-btn" bindtap="onRewrite">重新填写</view>
   </view>
 </view>

@@ -21,6 +21,11 @@
         statusHintText="{{matchPreview.statusHintText}}"
         canConfirm="{{matchPreview.canConfirm}}"
         canRewrite="{{matchPreview.canRewrite}}"
+        groupStatusCode="{{matchPreview.groupStatusCode}}"
+        groupStatusText="{{matchPreview.groupStatusText}}"
+        myDecisionText="{{matchPreview.myDecisionText}}"
+        confirmedProgressText="{{matchPreview.confirmedProgressText}}"
+        totalBudgetText="{{matchPreview.totalBudgetText}}"
         introText="{{matchPreview.introText}}"
         genderText="{{matchPreview.genderText}}"
         checkinCountText="{{matchPreview.checkinCountText}}"
@@ -32,7 +37,10 @@
         checkinDateText="{{matchPreview.checkinDateText}}"
         hasCurrentGroup="{{hasCurrentGroup}}"
         currentGroupMembers="{{currentGroupMembers}}"
+        isConfirming="{{isConfirmingGroup}}"
+        rejectingMatchId="{{rejectingMatchId}}"
         bind:confirm="handleConfirmGroup"
+        bind:reject="handleRejectGroupMember"
         bind:rewrite="handleRewrite"
       />
 
