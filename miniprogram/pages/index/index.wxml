@@ -18,6 +18,9 @@
       <match-preview-card
         wx:elif="{{hasCurrentMatch}}"
         statusText="{{matchPreview.statusText}}"
+        statusHintText="{{matchPreview.statusHintText}}"
+        canConfirm="{{matchPreview.canConfirm}}"
+        canRewrite="{{matchPreview.canRewrite}}"
         introText="{{matchPreview.introText}}"
         genderText="{{matchPreview.genderText}}"
         checkinCountText="{{matchPreview.checkinCountText}}"
@@ -27,6 +30,9 @@
         agencyFeeText="{{matchPreview.agencyFeeText}}"
         budgetText="{{matchPreview.budgetText}}"
         checkinDateText="{{matchPreview.checkinDateText}}"
+        hasCurrentGroup="{{hasCurrentGroup}}"
+        currentGroupMembers="{{currentGroupMembers}}"
+        bind:confirm="handleConfirmGroup"
         bind:rewrite="handleRewrite"
       />
 

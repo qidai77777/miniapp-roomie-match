@@ -8,7 +8,7 @@ import {
   type RoomieFormData,
 } from '../../utils/roomie'
 import { ensureLoggedIn, hasCompletedRequiredProfile } from '../../utils/auth'
-import { clearForm, loadForm, loadProfile, saveForm } from '../../utils/storage'
+import { clearForm, loadAuthSession, loadForm, loadProfile, saveForm } from '../../utils/storage'
 import { request } from '../../utils/request'
 
 type StepInfo = {
@@ -47,8 +47,32 @@ type CurrentMatchRecord = {
 
 type CurrentMatchResponse = CurrentMatchRecord | null | { code?: number; data?: CurrentMatchRecord | null; msg?: string }
 
+type CurrentGroupMemberRecord = {
+  matchId?: number | null
+  userId?: number | null
+  currentStatus?: string
+  expectedGender?: number | null
+  checkinCount?: number | null
+  expectedLayout?: string
+  expectedRoomType?: string
+  budgetMin?: number | null
+  budgetMax?: number | null
+  expectedCheckinDate?: string
+  acceptAgencyFee?: string
+  lifestyle?: string
+  selfIntroduction?: string
+}
+
+type CurrentGroupResponse =
+  | CurrentGroupMemberRecord[]
+  | { code?: number; data?: CurrentGroupMemberRecord[] | null; msg?: string }
+  | null
+
 type MatchPreviewData = {
   statusText: string
+  statusHintText: string
+  canConfirm: boolean
+  canRewrite: boolean
   introText: string
   genderText: string
   checkinCountText: string
@@ -58,6 +82,20 @@ type MatchPreviewData = {
   agencyFeeText: string
   budgetText: string
   checkinDateText: string
+}
+
+type GroupMemberPreviewData = {
+  memberTitle: string
+  statusText: string
+  genderText: string
+  checkinCountText: string
+  layoutText: string
+  roomTypeText: string
+  budgetText: string
+  checkinDateText: string
+  agencyFeeText: string
+  lifestyleText: string
+  introText: string
 }
 
 type IndexPageData = {
@@ -71,7 +109,9 @@ type IndexPageData = {
   isSuccess: boolean
   profileReady: boolean
   hasCurrentMatch: boolean
+  hasCurrentGroup: boolean
   matchPreview: MatchPreviewData
+  currentGroupMembers: GroupMemberPreviewData[]
   form: RoomieFormData
   shakingFields: Record<string, boolean>
   budgetText: string
@@ -125,9 +165,9 @@ function mapExpectedLayout(value: HouseType): string {
 }
 
 function mapExpectedRoomType(value: RoomType): string {
-  if (value === 'master') return '主人房'
-  if (value === 'common') return '普通房'
-  return '都可以'
+  if (value === 'master') return 'master'
+  if (value === 'common') return 'secondary'
+  return 'flexible'
 }
 
 function getMatchStatusText(status?: string): string {
@@ -153,15 +193,15 @@ function buildSubmitPayload(form: RoomieFormData): SubmitMatchPayload {
     checkinCount: Number(form.occupantCount),
     lifestyle: JSON.stringify({
       cleanliness: form.cleanLevel,
-      smoking: form.smoke === true ? '吸烟' : '不吸烟',
-      drinking: form.drink === true ? '饮酒' : '不饮酒',
-      has_visitor: form.hasGuest === true ? '是' : '否',
+      smoking: form.smoke === true ? 'smoke' : 'no_smoke',
+      drinking: form.drink === true ? 'drink' : 'no_drink',
+      has_visitor: form.hasGuest === true ? 'yes' : 'no',
       visitor_stay:
-        form.hasGuest === true ? (form.guestOvernight === true ? '过夜' : '不过夜') : '无访客',
+        form.hasGuest === true ? (form.guestOvernight === true ? 'overnight' : 'no_overnight') : 'no_visitor',
     }),
     expectedLayout: mapExpectedLayout(form.houseType),
     expectedRoomType: mapExpectedRoomType(form.roomType),
-    acceptAgencyFee: form.agencyFee === true ? '接受' : '不接受',
+    acceptAgencyFee: form.agencyFee === true ? 'accept' : 'reject',
     budgetMin: Number(form.budgetMin),
     budgetMax: Number(form.budgetMax),
     expectedCheckinDate: `${form.moveInYear}-${form.moveInMonth.padStart(2, '0')}`,
@@ -188,6 +228,22 @@ function getCurrentMatchRecord(response: CurrentMatchResponse): CurrentMatchReco
   return record
 }
 
+function getCurrentGroupRecords(response: CurrentGroupResponse): CurrentGroupMemberRecord[] {
+  if (!response) {
+    return []
+  }
+
+  if (Array.isArray(response)) {
+    return response
+  }
+
+  if (typeof response === 'object' && 'data' in response && Array.isArray(response.data)) {
+    return response.data
+  }
+
+  return []
+}
+
 function getGenderText(value?: number | null): string {
   if (value === 1) return '男生'
   if (value === 2) return '女生'
@@ -200,7 +256,26 @@ function getLayoutText(value?: string): string {
 }
 
 function getRoomTypeText(value?: string): string {
-  return value || '--'
+  if (!value) return '--'
+
+  const normalized = value.trim().toLowerCase()
+
+  if (normalized === 'master') return '主人房'
+  if (normalized === 'secondary') return '普通房'
+  if (normalized === 'flexible') return '均可'
+
+  return value
+}
+
+function getAgencyFeeText(value?: string): string {
+  if (!value) return '--'
+
+  const normalized = value.trim().toLowerCase()
+
+  if (normalized === 'accept') return '接受'
+  if (normalized === 'reject') return '不接受'
+
+  return value
 }
 
 function getBudgetRangeText(min?: number | null, max?: number | null): string {
@@ -217,6 +292,24 @@ function getCheckinCountText(value?: number | null): string {
   return typeof value === 'number' ? `${value} 人入住` : '--'
 }
 
+function getLifestyleValueText(value?: string): string {
+  if (!value) return ''
+
+  const normalized = value.trim().toLowerCase()
+
+  if (normalized === 'smoke') return '吸烟'
+  if (normalized === 'no_smoke') return '不吸烟'
+  if (normalized === 'drink') return '饮酒'
+  if (normalized === 'no_drink') return '不饮酒'
+  if (normalized === 'yes') return '是'
+  if (normalized === 'no') return '否'
+  if (normalized === 'overnight') return '过夜'
+  if (normalized === 'no_overnight') return '不过夜'
+  if (normalized === 'no_visitor') return '无访客'
+
+  return value
+}
+
 function parseLifestyleText(lifestyle?: string): string {
   if (!lifestyle) return '--'
 
@@ -224,10 +317,10 @@ function parseLifestyleText(lifestyle?: string): string {
     const parsed = JSON.parse(lifestyle) as Record<string, string>
     const items = [
       parsed.cleanliness ? `整洁度：${parsed.cleanliness}` : '',
-      parsed.smoking ? `吸烟：${parsed.smoking}` : '',
-      parsed.drinking ? `饮酒：${parsed.drinking}` : '',
-      parsed.has_visitor ? `访客：${parsed.has_visitor}` : '',
-      parsed.visitor_stay ? `过夜：${parsed.visitor_stay}` : '',
+      parsed.smoking ? `吸烟：${getLifestyleValueText(parsed.smoking)}` : '',
+      parsed.drinking ? `饮酒：${getLifestyleValueText(parsed.drinking)}` : '',
+      parsed.has_visitor ? `访客：${getLifestyleValueText(parsed.has_visitor)}` : '',
+      parsed.visitor_stay ? `过夜：${getLifestyleValueText(parsed.visitor_stay)}` : '',
     ].filter(Boolean)
 
     return items.length > 0 ? items.join('\n') : '--'
@@ -239,6 +332,9 @@ function parseLifestyleText(lifestyle?: string): string {
 function createEmptyMatchPreview(): MatchPreviewData {
   return {
     statusText: '',
+    statusHintText: '',
+    canConfirm: false,
+    canRewrite: true,
     introText: '',
     genderText: '',
     checkinCountText: '',
@@ -251,18 +347,51 @@ function createEmptyMatchPreview(): MatchPreviewData {
   }
 }
 
+function isSingleRoomLayout(value?: string): boolean {
+  if (!value) return false
+  const normalized = value.trim().toLowerCase()
+  return normalized === 'studio' || normalized === '1b1b'
+}
+
 function buildMatchPreview(record: CurrentMatchRecord): MatchPreviewData {
+  const isSingleRoom = isSingleRoomLayout(record.expectedLayout)
+
   return {
     statusText: getMatchStatusText(record.matchStatus),
+    statusHintText: isSingleRoom ? '单人间无需匹配室友，可直接入住' : '',
+    canConfirm: record.matchStatus === 'matched' && !isSingleRoom,
+    canRewrite: record.matchStatus !== 'matched' && record.matchStatus !== 'confirmed',
     introText: record.selfIntroduction || '',
     genderText: getGenderText(record.expectedGender),
     checkinCountText: getCheckinCountText(record.checkinCount),
     lifestyleText: parseLifestyleText(record.lifestyle),
     layoutText: getLayoutText(record.expectedLayout),
     roomTypeText: getRoomTypeText(record.expectedRoomType),
-    agencyFeeText: record.acceptAgencyFee || '--',
+    agencyFeeText: getAgencyFeeText(record.acceptAgencyFee),
     budgetText: getBudgetRangeText(record.budgetMin, record.budgetMax),
     checkinDateText: record.expectedCheckinDate || '--',
+  }
+}
+
+function buildGroupMemberPreview(
+  member: CurrentGroupMemberRecord,
+  index: number,
+  currentUserId: string,
+): GroupMemberPreviewData {
+  const isCurrentUser = currentUserId !== '' && String(member.userId || '') === currentUserId
+
+  return {
+    memberTitle: isCurrentUser ? '我的信息' : `分组成员 ${index + 1}`,
+    statusText: getMatchStatusText(member.currentStatus),
+    genderText: getGenderText(member.expectedGender),
+    checkinCountText: getCheckinCountText(member.checkinCount),
+    layoutText: getLayoutText(member.expectedLayout),
+    roomTypeText: getRoomTypeText(member.expectedRoomType),
+    budgetText: getBudgetRangeText(member.budgetMin, member.budgetMax),
+    checkinDateText: member.expectedCheckinDate || '--',
+    agencyFeeText: getAgencyFeeText(member.acceptAgencyFee),
+    lifestyleText: parseLifestyleText(member.lifestyle),
+    introText: member.selfIntroduction || '',
   }
 }
 
@@ -278,7 +407,9 @@ Page({
     isSuccess: false,
     profileReady: false,
     hasCurrentMatch: false,
+    hasCurrentGroup: false,
     matchPreview: createEmptyMatchPreview(),
+    currentGroupMembers: [],
     form: loadForm(),
     shakingFields: {},
     budgetText: '--',
@@ -338,19 +469,43 @@ Page({
       if (!record) {
         this.setData({
           hasCurrentMatch: false,
+          hasCurrentGroup: false,
           matchPreview: createEmptyMatchPreview(),
+          currentGroupMembers: [],
         })
         return
       }
 
+      let currentGroupMembers: GroupMemberPreviewData[] = []
+      const session = loadAuthSession()
+      const isSingleRoom = isSingleRoomLayout(record.expectedLayout)
+
+      if (record.matchStatus === 'matched' && !isSingleRoom && session.userId) {
+        try {
+          const groupResponse = await request<CurrentGroupResponse>({
+            url: `/match-relation/current-group/${session.userId}`,
+            method: 'GET',
+          })
+          currentGroupMembers = getCurrentGroupRecords(groupResponse).map((member, index) =>
+            buildGroupMemberPreview(member, index, session.userId),
+          )
+        } catch (error) {
+          currentGroupMembers = []
+        }
+      }
+
       this.setData({
         hasCurrentMatch: true,
+        hasCurrentGroup: currentGroupMembers.length > 0,
         matchPreview: buildMatchPreview(record),
+        currentGroupMembers,
       })
     } catch (error) {
       this.setData({
         hasCurrentMatch: false,
+        hasCurrentGroup: false,
         matchPreview: createEmptyMatchPreview(),
+        currentGroupMembers: [],
       })
     }
   },
@@ -597,6 +752,15 @@ Page({
   handleRewrite() {
     this.setData({
       hasCurrentMatch: false,
+      hasCurrentGroup: false,
+      currentGroupMembers: [],
+    })
+  },
+
+  handleConfirmGroup() {
+    wx.showToast({
+      title: '请提供确认接口后接入',
+      icon: 'none',
     })
   },
 
