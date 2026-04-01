@@ -16,7 +16,7 @@ type ApiErrorResponse = {
   msg?: string
 }
 
-let isRedirectingToLogin = false
+let isRedirectingToHome = false
 
 function buildUrl(url: string): string {
   if (isFullUrl(url)) {
@@ -30,17 +30,17 @@ function buildUrl(url: string): string {
 function handleUnauthorized() {
   clearAuthSession()
 
-  if (isRedirectingToLogin) {
+  if (isRedirectingToHome) {
     return
   }
 
-  isRedirectingToLogin = true
+  isRedirectingToHome = true
 
   wx.reLaunch({
-    url: '/pages/login/login',
+    url: '/pages/index/index',
     complete: () => {
       setTimeout(() => {
-        isRedirectingToLogin = false
+        isRedirectingToHome = false
       }, 300)
     },
   })

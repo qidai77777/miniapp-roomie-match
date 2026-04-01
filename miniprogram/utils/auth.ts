@@ -8,7 +8,6 @@ import {
 } from './roomie'
 
 const LOGIN_API_PATH = '/user/wx-login'
-const LOGIN_PAGE_PATH = '/pages/login/login'
 const HOME_PAGE_PATH = '/pages/index/index'
 const PROFILE_PAGE_PATH = '/pages/profile/profile'
 
@@ -230,7 +229,7 @@ export function ensureLoggedIn(options?: {
   }
 
   if (!options || options.redirect !== false) {
-    const redirectPath = options && options.redirectPath ? options.redirectPath : LOGIN_PAGE_PATH
+    const redirectPath = options && options.redirectPath ? options.redirectPath : HOME_PAGE_PATH
     wx.reLaunch({ url: redirectPath })
   }
 

@@ -297,7 +297,7 @@
   </view>
 </scroll-view>
 
-<view class="bottom-tab">
+<view wx:if="{{authReady}}" class="bottom-tab">
   <view class="tab-link active">
     <view class="tab-icon icon-home"></view>
   </view>

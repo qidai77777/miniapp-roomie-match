@@ -1,13 +1,12 @@
 <view class="preview-card">
   <view class="preview-hero">
     <view>
-      <view class="preview-chip">{{hasCurrentGroup ? '当前匹配分组' : '当前匹配记录'}}</view>
       <view class="preview-title">
         {{
           statusHintText
             ? '单人间已可直接入住'
             : hasCurrentGroup
-              ? '已为你找到分组，等待确认'
+              ? '已为您找到室友，等待确认'
               : statusText === '匹配中'
                 ? '正在为你匹配室友'
                 : '你已经提交过匹配信息'

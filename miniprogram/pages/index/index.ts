@@ -7,7 +7,7 @@ import {
   type RoomType,
   type RoomieFormData,
 } from '../../utils/roomie'
-import { ensureLoggedIn, hasCompletedRequiredProfile } from '../../utils/auth'
+import { fetchCurrentUserProfile, getAuthSession, hasCompletedRequiredProfile, isLoggedIn, login } from '../../utils/auth'
 import { clearForm, loadAuthSession, loadForm, loadProfile, saveForm } from '../../utils/storage'
 import { request } from '../../utils/request'
 
@@ -123,6 +123,7 @@ type GroupMemberPreviewData = {
 }
 
 type IndexPageData = {
+  authReady: boolean
   currentStep: number
   totalSteps: number
   progress: number
@@ -154,6 +155,8 @@ type IndexPageData = {
 
 const totalSteps = 4
 const serviceQrImageUrl = 'https://imgloc.com/image/OW3EOA'
+let authTask: Promise<boolean> | null = null
+
 const stepTitles: StepInfo[] = [
   { title: '基本信息', subtitle: '先选择室友偏好和入住人数', icon: '👋' },
   { title: '生活习惯', subtitle: '确认日常作息和相处方式', icon: '🌶' },
@@ -508,6 +511,7 @@ function buildGroupMemberPreview(
 
 Page({
   data: {
+    authReady: false,
     currentStep: 1,
     totalSteps,
     progress: getProgress(1),
@@ -543,7 +547,9 @@ Page({
   } as IndexPageData,
 
   async onShow() {
-    if (!ensureLoggedIn()) {
+    const isReady = await this.ensureSessionReady()
+
+    if (!isReady) {
       return
     }
 
@@ -559,6 +565,78 @@ Page({
     })
 
     await this.fetchCurrentMatch()
+  },
+
+  async ensureSessionReady(force = false): Promise<boolean> {
+    if (!force && this.data.authReady && isLoggedIn()) {
+      getApp<IAppOption>().globalData.authSession = getAuthSession()
+      return true
+    }
+
+    if (authTask) {
+      return authTask
+    }
+
+    this.setData({
+      authReady: false,
+    })
+
+    wx.showLoading({
+      title: '登录中',
+      mask: true,
+    })
+
+    authTask = (async () => {
+      try {
+        let session = getAuthSession()
+
+        if (!isLoggedIn()) {
+          session = await login()
+        }
+
+        getApp<IAppOption>().globalData.authSession = session
+
+        try {
+          session = await fetchCurrentUserProfile()
+          getApp<IAppOption>().globalData.authSession = session
+        } catch {
+          // Keep cached profile when remote refresh fails.
+        }
+
+        this.setData({
+          authReady: true,
+        })
+
+        return true
+      } catch (error) {
+        const message = error instanceof Error ? error.message : '登录失败，请稍后重试'
+        wx.hideLoading()
+
+        const modalResult = await wx.showModal({
+          title: '登录失败',
+          content: message,
+          confirmText: '重试',
+          cancelText: '取消',
+        })
+
+        if (modalResult.confirm) {
+          setTimeout(() => {
+            void this.onShow()
+          }, 0)
+        }
+
+        this.setData({
+          authReady: false,
+        })
+
+        return false
+      } finally {
+        wx.hideLoading()
+        authTask = null
+      }
+    })()
+
+    return authTask
   },
 
   syncForm(form: RoomieFormData) {
@@ -609,9 +687,9 @@ Page({
           })
           currentGroup = getCurrentGroupRecord(groupResponse)
           const session = loadAuthSession()
-          currentRelationId = normalizeId(currentGroup?.relationId)
-          myGroupDecision = currentGroup?.myDecision || ''
-          currentGroupMembers = (currentGroup?.members || []).map((member, index) =>
+          currentRelationId = normalizeId(currentGroup ? currentGroup.relationId : undefined)
+          myGroupDecision = currentGroup ? currentGroup.myDecision || '' : ''
+          currentGroupMembers = (currentGroup && currentGroup.members ? currentGroup.members : []).map((member, index) =>
             buildGroupMemberPreview(member, index, session.userId),
           )
         } catch (error) {
@@ -630,11 +708,14 @@ Page({
         myGroupDecision,
         matchPreview: {
           ...matchPreview,
-          groupStatusCode: currentGroup?.groupStatus || '',
-          groupStatusText: getGroupStatusText(currentGroup?.groupStatus),
+          groupStatusCode: currentGroup ? currentGroup.groupStatus || '' : '',
+          groupStatusText: getGroupStatusText(currentGroup ? currentGroup.groupStatus : undefined),
           myDecisionText: getDecisionText(myGroupDecision),
-          confirmedProgressText: getConfirmProgressText(currentGroup?.confirmedCount, currentGroup?.memberCount),
-          totalBudgetText: getTotalBudgetText(record, currentGroup?.members || []),
+          confirmedProgressText: getConfirmProgressText(
+            currentGroup ? currentGroup.confirmedCount : undefined,
+            currentGroup ? currentGroup.memberCount : undefined,
+          ),
+          totalBudgetText: getTotalBudgetText(record, currentGroup && currentGroup.members ? currentGroup.members : []),
           canConfirm: matchPreview.canConfirm && currentRelationId !== '' && myGroupDecision !== 'confirmed',
         },
         currentGroupMembers,
@@ -929,7 +1010,7 @@ Page({
       const result = typeof response === 'object' && response !== null && 'data' in response ? response.data : response
 
       wx.showToast({
-        title: result?.allConfirmed ? '分组已全部确认' : '已确认，等待其他成员',
+        title: result && result.allConfirmed ? '分组已全部确认' : '已确认，等待其他成员',
         icon: 'none',
       })
 
@@ -952,7 +1033,7 @@ Page({
   },
 
   async handleRejectGroupMember(e: WechatMiniprogram.CustomEvent<{ matchId?: string }>) {
-    const targetMatchId = normalizeId(e.detail?.matchId)
+    const targetMatchId = normalizeId(e.detail ? e.detail.matchId : undefined)
     if (this.data.rejectingMatchId || !this.data.currentRelationId || !targetMatchId) return
 
     try {
