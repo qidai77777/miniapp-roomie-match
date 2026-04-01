@@ -10,8 +10,8 @@ const ENV_CONFIG_MAP: Record<AppEnv, EnvConfig> = {
   development: {
     name: 'development',
     label: '开发环境',
-    baseUrl: 'http://42.194.162.221',
-    // baseUrl: 'http://127.0.0.1:8080',
+    // baseUrl: 'http://42.194.162.221',
+    baseUrl: 'http://127.0.0.1:8080',
   },
   production: {
     name: 'production',

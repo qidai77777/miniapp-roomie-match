@@ -310,7 +310,7 @@
   <view class="qr-modal-card" catchtap="noop">
     <view class="qr-modal-title">添加客服微信</view>
     <image class="qr-modal-image" src="{{serviceQrImageUrl}}" mode="aspectFit"></image>
-    <view class="qr-modal-desc">请添加客服微信，匹配成功后将为您创建微信群，或直接复制微信号 {{serviceWechatId}}。</view>
+    <view class="qr-modal-desc">请添加客服微信，或直接复制微信号 {{serviceWechatId}}，匹配成功后会在 12 小时内为您创建微信群。</view>
     <view class="qr-modal-actions">
       <view class="qr-modal-copy" bindtap="copyServiceWechat">复制微信号</view>
       <view class="qr-modal-btn" bindtap="closeServiceQrModal">我知道了</view>

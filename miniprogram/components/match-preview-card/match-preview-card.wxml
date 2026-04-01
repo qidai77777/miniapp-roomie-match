@@ -27,7 +27,7 @@
 
   <view wx:if="{{hasCurrentGroup}}" class="preview-section">
     <view class="preview-section-title">匹配室友预览</view>
-    <view class="group-section-hint">每张卡片对应一个匹配帖子，你可以单独拒绝某一条帖子，不影响你查看其他帖子信息。</view>
+    <view class="group-section-hint">每张卡片都是一位匹配对象的资料，你可以单独拒绝其中一位；拒绝后系统会继续为你匹配其他室友。</view>
     <view class="group-summary">
       <view class="group-summary-item">
         <text class="group-summary-label">分组状态</text>

@@ -475,7 +475,7 @@ function buildMatchPreview(record: CurrentMatchRecord): MatchPreviewData {
     statusText: getMatchStatusText(record.matchStatus),
     statusHintText: isSingleRoom ? '单人间无需匹配室友，可直接入住' : '',
     canConfirm: record.matchStatus === 'matched' && !isSingleRoom,
-    canRewrite: record.matchStatus !== 'matched' && record.matchStatus !== 'confirmed',
+    canRewrite: record.matchStatus !== 'matched' || isSingleRoom || record.matchStatus === 'confirmed',
     groupStatusCode: '',
     groupStatusText: '',
     myDecisionText: '',
