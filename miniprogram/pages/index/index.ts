@@ -163,6 +163,7 @@ type IndexPageData = {
 const totalSteps = 4
 const serviceQrImageUrl = '/assets/images/erweima.png'
 const serviceWechatId = 'sgzuzhu'
+const matchSubscribeTemplateId = 'r3JDVvEa1_szaNPoze0vyxhAwDAIqnVMQqP1qnNKgkE'
 let authTask: Promise<boolean> | null = null
 
 const stepTitles: StepInfo[] = [
@@ -299,10 +300,20 @@ function normalizeId(value?: string | number | null): string {
   return String(value)
 }
 
+function truncateSelfIntroduction(value: string, maxLength = 50): string {
+  const trimmedValue = value.trim()
+
+  if (trimmedValue.length <= maxLength) {
+    return trimmedValue
+  }
+
+  return `${trimmedValue.slice(0, maxLength)}...`
+}
+
 function buildSubmitPayload(form: RoomieFormData): SubmitMatchPayload {
   return {
     matchStatus: 'submitted',
-    selfIntroduction: form.intro.trim(),
+    selfIntroduction: truncateSelfIntroduction(form.intro),
     expectedGender: mapExpectedGender(form.preferredRoommateGender),
     checkinCount: Number(form.occupantCount),
     lifestyle: JSON.stringify({
@@ -466,6 +477,44 @@ function isSingleRoomLayout(value?: string): boolean {
   if (!value) return false
   const normalized = value.trim().toLowerCase()
   return normalized === 'studio' || normalized === '1b1b'
+}
+
+async function requestMatchSubscribePermission(): Promise<boolean> {
+  try {
+    const result = await wx.requestSubscribeMessage({
+      tmplIds: [matchSubscribeTemplateId],
+    })
+
+    const subscribeResult = result[matchSubscribeTemplateId]
+
+    if (subscribeResult === 'accept') {
+      return true
+    }
+
+    wx.showToast({
+      title: '请先同意订阅微信通知',
+      icon: 'none',
+    })
+
+    return false
+  } catch (error) {
+    const systemInfo = wx.getSystemInfoSync()
+
+    if (systemInfo.platform === 'devtools') {
+      wx.showToast({
+        title: '开发者工具不支持订阅调试，已跳过',
+        icon: 'none',
+      })
+      return true
+    }
+
+    const message = error instanceof Error ? error.message : '订阅微信通知失败，请稍后重试'
+    wx.showToast({
+      title: message,
+      icon: 'none',
+    })
+    return false
+  }
 }
 
 function buildMatchPreview(record: CurrentMatchRecord): MatchPreviewData {
@@ -932,6 +981,12 @@ Page({
       return
     }
 
+    const hasSubscribed = await requestMatchSubscribePermission()
+
+    if (!hasSubscribed) {
+      return
+    }
+
     this.setData({
       isSubmitting: true,
       profileReady: true,
@@ -995,6 +1050,12 @@ Page({
     if (this.data.isConfirmingGroup || !this.data.currentRelationId) return
 
     try {
+      const hasSubscribed = await requestMatchSubscribePermission()
+
+      if (!hasSubscribed) {
+        return
+      }
+
       const modalResult = await wx.showModal({
         title: '确认当前分组',
         content: '确认后会进入分组确认流程，待所有成员确认完成后匹配成功。',
