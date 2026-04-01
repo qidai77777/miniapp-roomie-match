@@ -20,6 +20,9 @@ type ProfilePageData = {
   missingText: string
   hasRequiredProfile: boolean
   schoolDisplayText: string
+  showServiceQrModal: boolean
+  serviceQrImageUrl: string
+  serviceWechatId: string
 }
 
 type UpdateProfilePayload = {
@@ -50,6 +53,9 @@ function computeState(profile: ProfileData) {
   }
 }
 
+const serviceQrImageUrl = '/assets/images/erweima.png'
+const serviceWechatId = 'sgzuzhu'
+
 Page({
   data: {
     profile: loadProfile(),
@@ -58,6 +64,9 @@ Page({
     missingText: '',
     hasRequiredProfile: false,
     schoolDisplayText: '',
+    showServiceQrModal: false,
+    serviceQrImageUrl,
+    serviceWechatId,
   } as ProfilePageData,
 
   onShow() {
@@ -165,6 +174,36 @@ Page({
   onWechatInput(e: WechatMiniprogram.Input) {
     this.updateProfile({ wechat: e.detail.value.trim() })
   },
+
+  onNicknameInput(e: WechatMiniprogram.Input) {
+    this.updateProfile({ nickName: e.detail.value.trim() })
+  },
+
+  openServiceQrModal() {
+    this.setData({
+      showServiceQrModal: true,
+    })
+  },
+
+  closeServiceQrModal() {
+    this.setData({
+      showServiceQrModal: false,
+    })
+  },
+
+  copyServiceWechat() {
+    void wx.setClipboardData({
+      data: this.data.serviceWechatId,
+      success: () => {
+        wx.showToast({
+          title: '微信号已复制',
+          icon: 'success',
+        })
+      },
+    })
+  },
+
+  noop() {},
 
   goHome() {
     void this.syncProfileOnLeave()

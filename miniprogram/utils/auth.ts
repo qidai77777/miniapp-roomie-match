@@ -1,7 +1,6 @@
 import { request } from './request'
 import { clearAuthSession, loadAuthSession, loadProfile, saveAuthSession, saveProfile } from './storage'
 import {
-  createDefaultAuthSession,
   normalizeSchoolValue,
   type AuthSession,
   type ProfileData,
@@ -9,7 +8,6 @@ import {
 
 const LOGIN_API_PATH = '/user/wx-login'
 const HOME_PAGE_PATH = '/pages/index/index'
-const PROFILE_PAGE_PATH = '/pages/profile/profile'
 
 type LoginApiPayload = {
   code: string
@@ -112,11 +110,6 @@ export function logout() {
   clearAuthSession()
 }
 
-export function hasUserProfile(session?: AuthSession): boolean {
-  const currentSession = session || loadAuthSession()
-  return currentSession.nickName.trim() !== '' && currentSession.avatarUrl.trim() !== ''
-}
-
 export function hasCompletedRequiredProfile(profile?: ProfileData): boolean {
   const currentProfile = profile || loadProfile()
   return (
@@ -124,21 +117,6 @@ export function hasCompletedRequiredProfile(profile?: ProfileData): boolean {
     currentProfile.school.trim() !== '' &&
     currentProfile.wechat.trim() !== ''
   )
-}
-
-export function updateAuthSessionProfile(profile: {
-  nickName: string
-  avatarUrl: string
-}): AuthSession {
-  const session = loadAuthSession()
-  const nextSession: AuthSession = {
-    ...session,
-    nickName: profile.nickName.trim(),
-    avatarUrl: profile.avatarUrl.trim(),
-  }
-
-  saveAuthSession(nextSession)
-  return nextSession
 }
 
 export async function syncUserProfile(profile: {
@@ -234,12 +212,4 @@ export function ensureLoggedIn(options?: {
   }
 
   return false
-}
-
-export function resolveLoginSuccessPath(): string {
-  return hasCompletedRequiredProfile() ? HOME_PAGE_PATH : PROFILE_PAGE_PATH
-}
-
-export function createGuestSession(): AuthSession {
-  return createDefaultAuthSession()
 }

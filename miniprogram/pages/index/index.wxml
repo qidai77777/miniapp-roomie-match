@@ -11,8 +11,8 @@
           <view class="success-check"></view>
         </view>
         <view class="success-title">提交成功</view>
-        <view class="success-desc">我们已经收到你的信息，正在为你匹配更合适的室友。</view>
-        <view class="btn-reset" bindtap="goHome">返回主页</view>
+        <view class="success-desc">我们已经收到你的信息，正在为你匹配更合适的合租搭子。</view>
+        <view class="btn-reset" bindtap="goHome">返回首页</view>
       </view>
 
       <match-preview-card
@@ -53,7 +53,7 @@
             <view class="brand-copy">
               <view class="brand-chip">坡岛合租工具</view>
               <view class="app-title">坡岛合租工具</view>
-              <view class="app-sub">更适合留学生的室友匹配</view>
+              <view class="app-sub">更适合留学生的合租匹配</view>
             </view>
           </view>
 
@@ -78,7 +78,7 @@
 
         <view wx:if="{{currentStep === 1}}" class="step-body">
           <view class="field-group {{shakingFields.preferredRoommateGender ? 'shake' : ''}}">
-            <view class="field-label">想找的室友<text class="required">*</text></view>
+            <view class="field-label">想找的室友 <text class="required">*</text></view>
             <view class="radio-group">
               <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectPreferredGender">
                 <text class="radio-title">男室友</text>
@@ -173,10 +173,10 @@
             <view class="bool-group">
               <view class="bool-btn yes {{form.guestOvernight === true ? 'selected' : ''}}" data-value="true" bindtap="selectGuestOvernight">
                 <text class="bool-title">有时过夜</text>
-                <text class="bool-desc">需提前沟通安排</text>
+                <text class="bool-desc">需要提前沟通安排</text>
               </view>
               <view class="bool-btn no {{form.guestOvernight === false ? 'selected' : ''}}" data-value="false" bindtap="selectGuestOvernight">
-                <text class="bool-title">不会过夜</text>
+                <text class="bool-title">不过夜</text>
                 <text class="bool-desc">更稳定的同住节奏</text>
               </view>
             </view>
@@ -310,7 +310,10 @@
   <view class="qr-modal-card" catchtap="noop">
     <view class="qr-modal-title">添加客服微信</view>
     <image class="qr-modal-image" src="{{serviceQrImageUrl}}" mode="aspectFit"></image>
-    <view class="qr-modal-desc">请添加客服微信，匹配成功后将为您创建微信群</view>
-    <view class="qr-modal-btn" bindtap="closeServiceQrModal">我知道了</view>
+    <view class="qr-modal-desc">请添加客服微信，匹配成功后将为您创建微信群，或直接复制微信号 {{serviceWechatId}}。</view>
+    <view class="qr-modal-actions">
+      <view class="qr-modal-copy" bindtap="copyServiceWechat">复制微信号</view>
+      <view class="qr-modal-btn" bindtap="closeServiceQrModal">我知道了</view>
+    </view>
   </view>
 </view>

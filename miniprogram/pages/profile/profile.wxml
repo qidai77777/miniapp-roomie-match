@@ -7,16 +7,6 @@
 
     <view class="profile-card">
       <view class="profile-hero">
-        <view class="hero-user">
-          <view class="hero-avatar-frame">
-            <view class="hero-avatar-ring"></view>
-            <image wx:if="{{profile.avatarUrl}}" class="hero-avatar" src="{{profile.avatarUrl}}" mode="aspectFill"></image>
-            <view wx:else class="hero-avatar hero-avatar-placeholder">R</view>
-          </view>
-          <view class="hero-user-copy">
-            <view class="hero-nickname">{{profile.nickName || '未授权昵称'}}</view>
-          </view>
-        </view>
         <view class="profile-title">你的坡岛合租档案</view>
       </view>
 
@@ -31,6 +21,11 @@
             <view>
               <view class="panel-title">基础资料</view>
             </view>
+          </view>
+
+          <view class="field-group">
+            <view class="field-label">昵称 <text class="required">*</text></view>
+            <input class="field-input" type="nickname" value="{{profile.nickName}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
           </view>
 
           <view class="field-group">
@@ -61,6 +56,19 @@
             <input class="field-input" value="{{profile.wechat}}" maxlength="50" placeholder="请输入你的微信号" bindinput="onWechatInput" />
           </view>
         </view>
+
+        <view class="profile-panel service-panel">
+          <view class="panel-head">
+            <view>
+              <view class="panel-title">联系客服</view>
+              <view class="panel-text">遇到匹配、进群或使用问题，可以直接联系人工客服。</view>
+            </view>
+          </view>
+
+          <view class="service-actions">
+            <view class="service-btn primary" bindtap="openServiceQrModal">查看客服二维码</view>
+          </view>
+        </view>
       </view>
     </view>
   </view>
@@ -72,5 +80,17 @@
   </view>
   <view class="tab-link active">
     <view class="tab-icon icon-profile"></view>
+  </view>
+</view>
+
+<view wx:if="{{showServiceQrModal}}" class="qr-modal-mask" bindtap="closeServiceQrModal">
+  <view class="qr-modal-card" catchtap="noop">
+    <view class="qr-modal-title">联系客服</view>
+    <image class="qr-modal-image" src="{{serviceQrImageUrl}}" mode="aspectFit"></image>
+    <view class="qr-modal-desc">扫码添加客服微信，或直接复制微信号 {{serviceWechatId}}。</view>
+    <view class="qr-modal-actions">
+      <view class="qr-modal-copy" bindtap="copyServiceWechat">复制微信号</view>
+      <view class="qr-modal-btn" bindtap="closeServiceQrModal">我知道了</view>
+    </view>
   </view>
 </view>

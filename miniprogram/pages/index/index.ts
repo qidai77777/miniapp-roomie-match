@@ -7,7 +7,13 @@ import {
   type RoomType,
   type RoomieFormData,
 } from '../../utils/roomie'
-import { fetchCurrentUserProfile, getAuthSession, hasCompletedRequiredProfile, isLoggedIn, login } from '../../utils/auth'
+import {
+  fetchCurrentUserProfile,
+  getAuthSession,
+  hasCompletedRequiredProfile,
+  isLoggedIn,
+  login,
+} from '../../utils/auth'
 import { clearForm, loadAuthSession, loadForm, loadProfile, saveForm } from '../../utils/storage'
 import { request } from '../../utils/request'
 
@@ -148,13 +154,15 @@ type IndexPageData = {
   moveInText: string
   houseTypePreview: string
   serviceQrImageUrl: string
+  serviceWechatId: string
   moveInYears: string[]
   moveInMonths: string[]
   houseTypeOptions: Array<{ value: HouseType; label: string }>
 }
 
 const totalSteps = 4
-const serviceQrImageUrl = 'https://imgloc.com/image/OW3EOA'
+const serviceQrImageUrl = '/assets/images/erweima.png'
+const serviceWechatId = 'sgzuzhu'
 let authTask: Promise<boolean> | null = null
 
 const stepTitles: StepInfo[] = [
@@ -536,6 +544,7 @@ Page({
     moveInText: '--',
     houseTypePreview: '--',
     serviceQrImageUrl,
+    serviceWechatId,
     moveInYears: getCurrentMoveInYears(),
     moveInMonths: getMoveInMonths(),
     houseTypeOptions: [
@@ -1092,6 +1101,18 @@ Page({
   closeServiceQrModal() {
     this.setData({
       showServiceQrModal: false,
+    })
+  },
+
+  copyServiceWechat() {
+    void wx.setClipboardData({
+      data: this.data.serviceWechatId,
+      success: () => {
+        wx.showToast({
+          title: '微信号已复制',
+          icon: 'success',
+        })
+      },
     })
   },
 
