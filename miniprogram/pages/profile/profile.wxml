@@ -1,4 +1,4 @@
-<navigation-bar title="拼室友" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+<navigation-bar title="坡岛合租工具" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
 
 <scroll-view class="page-scroll" scroll-y="{{true}}">
   <view class="page-shell">
@@ -17,7 +17,7 @@
             <view class="hero-nickname">{{profile.nickName || '未授权昵称'}}</view>
           </view>
         </view>
-        <view class="profile-title">你的 RoomieMatch 档案</view>
+        <view class="profile-title">你的坡岛合租档案</view>
       </view>
 
       <view class="profile-grid">

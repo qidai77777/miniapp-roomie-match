@@ -1,4 +1,4 @@
-<navigation-bar title="拼室友" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+<navigation-bar title="坡岛合租工具" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
 
 <scroll-view class="page-scroll" scroll-y="{{true}}">
   <view class="page-shell">
@@ -51,8 +51,8 @@
               <view class="brand-mark-core"></view>
             </view>
             <view class="brand-copy">
-              <view class="brand-chip">拼室友</view>
-              <view class="app-title">拼室友</view>
+              <view class="brand-chip">坡岛合租工具</view>
+              <view class="app-title">坡岛合租工具</view>
               <view class="app-sub">更适合留学生的室友匹配</view>
             </view>
           </view>
