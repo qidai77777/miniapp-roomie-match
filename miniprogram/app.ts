@@ -7,6 +7,6 @@ App<IAppOption>({
     authSession: getAuthSession(),
   },
   onLaunch() {
-    console.info(`当前环境: ${envConfig.label}`, envConfig)
+    console.info('当前接口配置', envConfig)
   },
 })

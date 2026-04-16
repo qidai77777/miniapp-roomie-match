@@ -1,10 +1,6 @@
 /// <reference path="./types/index.d.ts" />
 
-type AppEnv = 'development' | 'production'
-
 type EnvConfig = {
-  name: AppEnv
-  label: string
   baseUrl: string
 }
 
