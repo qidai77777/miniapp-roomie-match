@@ -1,0 +1,43 @@
+.page-scroll {
+  height: 100vh;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.page-shell {
+  min-height: 100%;
+  padding: 20px;
+}
+
+.agreement-container {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.agreement-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1a1a1a;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.agreement-section {
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 12px;
+}
+
+.section-content {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #666;
+  margin-bottom: 8px;
+  text-align: justify;
+}

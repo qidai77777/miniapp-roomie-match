@@ -1,7 +1,10 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/profile/profile"
+    "pages/auth-login/auth-login",
+    "pages/profile/profile",
+    "pages/user-agreement/user-agreement",
+    "pages/privacy-policy/privacy-policy"
   ],
   "window": {
     "navigationBarTextStyle": "black",

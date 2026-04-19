@@ -8,11 +8,10 @@ import {
   type RoomieFormData,
 } from '../../utils/roomie'
 import {
+  buildAuthLoginUrl,
   fetchCurrentUserProfile,
-  getAuthSession,
   hasCompletedRequiredProfile,
   isLoggedIn,
-  login,
 } from '../../utils/auth'
 import { clearForm, loadAuthSession, loadForm, loadProfile, saveForm } from '../../utils/storage'
 import { request } from '../../utils/request'
@@ -129,7 +128,7 @@ type GroupMemberPreviewData = {
 }
 
 type IndexPageData = {
-  authReady: boolean
+  isLoggedIn: boolean
   currentStep: number
   totalSteps: number
   progress: number
@@ -164,7 +163,6 @@ const totalSteps = 4
 const serviceQrImageUrl = '/assets/images/erweima.png'
 const serviceWechatId = 'sgzuzhu'
 const matchSubscribeTemplateId = 'r3JDVvEa1_szaNPoze0vyxhAwDAIqnVMQqP1qnNKgkE'
-let authTask: Promise<boolean> | null = null
 
 const stepTitles: StepInfo[] = [
   { title: '基本信息', subtitle: '先选择室友偏好和入住人数', icon: '👋' },
@@ -473,6 +471,17 @@ function createEmptyMatchPreview(): MatchPreviewData {
   }
 }
 
+function createEmptyMatchState() {
+  return {
+    hasCurrentMatch: false,
+    hasCurrentGroup: false,
+    currentRelationId: '',
+    myGroupDecision: '',
+    matchPreview: createEmptyMatchPreview(),
+    currentGroupMembers: [] as GroupMemberPreviewData[],
+  }
+}
+
 function isSingleRoomLayout(value?: string): boolean {
   if (!value) return false
   const normalized = value.trim().toLowerCase()
@@ -568,7 +577,7 @@ function buildGroupMemberPreview(
 
 Page({
   data: {
-    authReady: false,
+    isLoggedIn: isLoggedIn(),
     currentStep: 1,
     totalSteps,
     progress: getProgress(1),
@@ -605,96 +614,30 @@ Page({
   } as IndexPageData,
 
   async onShow() {
-    const isReady = await this.ensureSessionReady()
-
-    if (!isReady) {
-      return
-    }
-
-    if (!hasRequiredProfile()) {
-      wx.redirectTo({ url: '/pages/profile/profile' })
-      return
-    }
-
     const form = loadForm()
+    const loggedIn = isLoggedIn()
+
     this.syncForm(form)
     this.setData({
-      profileReady: hasRequiredProfile(),
+      isLoggedIn: loggedIn,
+      profileReady: loggedIn && hasRequiredProfile(),
     })
+
+    if (!loggedIn) {
+      this.setData(createEmptyMatchState())
+      return
+    }
+
+    try {
+      await fetchCurrentUserProfile()
+      this.setData({
+        profileReady: hasRequiredProfile(),
+      })
+    } catch {
+      // Keep local profile cache when refresh fails.
+    }
 
     await this.fetchCurrentMatch()
-  },
-
-  async ensureSessionReady(force = false): Promise<boolean> {
-    if (!force && this.data.authReady && isLoggedIn()) {
-      getApp<IAppOption>().globalData.authSession = getAuthSession()
-      return true
-    }
-
-    if (authTask) {
-      return authTask
-    }
-
-    this.setData({
-      authReady: false,
-    })
-
-    wx.showLoading({
-      title: '登录中',
-      mask: true,
-    })
-
-    authTask = (async () => {
-      try {
-        let session = getAuthSession()
-
-        if (!isLoggedIn()) {
-          session = await login()
-        }
-
-        getApp<IAppOption>().globalData.authSession = session
-
-        try {
-          session = await fetchCurrentUserProfile()
-          getApp<IAppOption>().globalData.authSession = session
-        } catch {
-          // Keep cached profile when remote refresh fails.
-        }
-
-        this.setData({
-          authReady: true,
-        })
-
-        return true
-      } catch (error) {
-        const message = error instanceof Error ? error.message : '登录失败，请稍后重试'
-        wx.hideLoading()
-
-        const modalResult = await wx.showModal({
-          title: '登录失败',
-          content: message,
-          confirmText: '重试',
-          cancelText: '取消',
-        })
-
-        if (modalResult.confirm) {
-          setTimeout(() => {
-            void this.onShow()
-          }, 0)
-        }
-
-        this.setData({
-          authReady: false,
-        })
-
-        return false
-      } finally {
-        wx.hideLoading()
-        authTask = null
-      }
-    })()
-
-    return authTask
   },
 
   syncForm(form: RoomieFormData) {
@@ -720,14 +663,7 @@ Page({
       const record = getCurrentMatchRecord(response)
 
       if (!record) {
-        this.setData({
-          hasCurrentMatch: false,
-          hasCurrentGroup: false,
-          currentRelationId: '',
-          myGroupDecision: '',
-          matchPreview: createEmptyMatchPreview(),
-          currentGroupMembers: [],
-        })
+        this.setData(createEmptyMatchState())
         return
       }
 
@@ -779,14 +715,7 @@ Page({
         currentGroupMembers,
       })
     } catch (error) {
-      this.setData({
-        hasCurrentMatch: false,
-        hasCurrentGroup: false,
-        currentRelationId: '',
-        myGroupDecision: '',
-        matchPreview: createEmptyMatchPreview(),
-        currentGroupMembers: [],
-      })
+      this.setData(createEmptyMatchState())
     }
   },
 
@@ -972,12 +901,33 @@ Page({
       return
     }
 
+    if (!this.data.isLoggedIn) {
+      const modalResult = await wx.showModal({
+        title: '提交前请先登录',
+        content: '浏览和填写都可以先体验，真正提交匹配时再授权登录即可。',
+        confirmText: '去登录',
+        cancelText: '再看看',
+      })
+
+      if (modalResult.confirm) {
+        wx.navigateTo({ url: buildAuthLoginUrl('/pages/index/index') })
+      }
+
+      return
+    }
+
     if (!hasRequiredProfile()) {
-      wx.showModal({
+      const modalResult = await wx.showModal({
         title: '请先完善资料',
         content: '请先在个人中心填写必填资料：性别、学校和微信号。',
-        showCancel: false,
+        confirmText: '去完善',
+        cancelText: '稍后',
       })
+
+      if (modalResult.confirm) {
+        wx.navigateTo({ url: '/pages/profile/profile' })
+      }
+
       return
     }
 
@@ -1037,13 +987,7 @@ Page({
   },
 
   handleRewrite() {
-    this.setData({
-      hasCurrentMatch: false,
-      hasCurrentGroup: false,
-      currentRelationId: '',
-      myGroupDecision: '',
-      currentGroupMembers: [],
-    })
+    this.setData(createEmptyMatchState())
   },
 
   async handleConfirmGroup() {
@@ -1156,7 +1100,26 @@ Page({
   },
 
   goProfile() {
-    wx.redirectTo({ url: '/pages/profile/profile' })
+    if (this.data.isLoggedIn) {
+      // 已登录，直接跳转到个人中心
+      wx.navigateTo({ url: '/pages/profile/profile' })
+    } else {
+      // 未登录，直接跳转到登录页
+      wx.navigateTo({ url: buildAuthLoginUrl('/pages/profile/profile') })
+    }
+  },
+
+  async showLoginRequired() {
+    const modalResult = await wx.showModal({
+      title: '需要登录',
+      content: '请先登录后再填写匹配信息。',
+      confirmText: '去登录',
+      cancelText: '稍后',
+    })
+
+    if (modalResult.confirm) {
+      wx.navigateTo({ url: buildAuthLoginUrl('/pages/index/index') })
+    }
   },
 
   closeServiceQrModal() {

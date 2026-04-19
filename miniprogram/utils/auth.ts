@@ -7,7 +7,8 @@ import {
 } from './roomie'
 
 const LOGIN_API_PATH = '/user/wx-login'
-const HOME_PAGE_PATH = '/pages/index/index'
+export const HOME_PAGE_PATH = '/pages/index/index'
+export const AUTH_LOGIN_PAGE_PATH = '/pages/auth-login/auth-login'
 
 type LoginApiPayload = {
   code: string
@@ -198,6 +199,13 @@ export async function fetchCurrentUserProfile(): Promise<AuthSession> {
   return nextSession
 }
 
+export function buildAuthLoginUrl(redirectPath = HOME_PAGE_PATH): string {
+  const normalizedRedirectPath =
+    redirectPath && redirectPath !== AUTH_LOGIN_PAGE_PATH ? redirectPath : HOME_PAGE_PATH
+
+  return `${AUTH_LOGIN_PAGE_PATH}?redirect=${encodeURIComponent(normalizedRedirectPath)}`
+}
+
 export function ensureLoggedIn(options?: {
   redirect?: boolean
   redirectPath?: string
@@ -208,7 +216,7 @@ export function ensureLoggedIn(options?: {
 
   if (!options || options.redirect !== false) {
     const redirectPath = options && options.redirectPath ? options.redirectPath : HOME_PAGE_PATH
-    wx.reLaunch({ url: redirectPath })
+    wx.reLaunch({ url: buildAuthLoginUrl(redirectPath) })
   }
 
   return false

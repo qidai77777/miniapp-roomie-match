@@ -1,0 +1,90 @@
+<navigation-bar title="隐私政策" back="{{true}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y="{{true}}">
+  <view class="page-shell">
+    <view class="agreement-container">
+      <view class="agreement-title">坡岛合租工具 隐私政策</view>
+      
+      <view class="agreement-meta">
+        <text>更新日期：2026 年 04 月 19 日</text>
+        <text>生效日期：2026 年 04 月 19 日</text>
+      </view>
+
+      <view class="agreement-intro">
+        我们严格遵守《中华人民共和国个人信息保护法》《微信小程序平台运营规范》，遵循合法、正当、必要、诚信原则，保护你的个人信息安全。本政策清晰说明我们收集、使用、保护你个人信息的规则，你点击同意本政策，即表示你授权我们按本规则处理你的个人信息。
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">一、我们收集的信息及用途</view>
+        <view class="section-content">
+          我们仅为实现小程序服务功能收集必要信息，你有权拒绝提供非必需信息，拒绝后仅影响对应功能使用，不影响小程序基础浏览服务。
+        </view>
+        
+        <view class="subsection-title">账号登录必需信息</view>
+        <view class="section-content">
+          当你主动点击登录时，我们将申请微信授权，在你明示同意后，获取微信 OpenID、UnionID（你的唯一用户标识），仅用于账号注册登录、用户身份核验、账号安全保障，无其他用途。
+        </view>
+        <view class="section-content">
+          你可自愿授权提供微信昵称、头像，仅用于小程序内账号信息展示。
+        </view>
+
+        <view class="subsection-title">合租匹配核心服务必填信息（微信号）</view>
+        <view class="section-content">
+          本小程序的核心服务为新加坡合租伙伴匹配，匹配成功后需通过建立微信群完成双方对接，微信号是实现该对接服务、核验用户真实身份、定位对接主体、规避虚假信息与合租纠纷的唯一有效必需信息。
+        </view>
+        <view class="section-content">
+          当你主动使用「发布合租需求、发起匹配对接」功能时，需填写真实有效的微信号，该信息为使用上述核心功能的必填项；
+        </view>
+        <view class="section-content">
+          我们仅将你填写的微信号，用于匹配成功后的微信群搭建、合租双方对接、用户身份核验、纠纷处理定位对接人，绝不超出上述范围使用；
+        </view>
+        <view class="section-content">
+          你未填写微信号，仍可正常浏览小程序内的公开合租需求信息，仅无法使用发布需求、发起匹配、对接合租伙伴的核心功能；
+        </view>
+        <view class="section-content">
+          你可随时在小程序个人中心修改、更新你填写的微信号，账号注销后我们将按法规要求同步删除该信息。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">二、信息的存储与保护</view>
+        <view class="section-content">
+          你的个人信息全部存储于中华人民共和国境内，仅在为你提供服务的必要期限内存储，账号注销后将在法规要求的时限内完成删除或匿名化处理。
+        </view>
+        <view class="section-content">
+          我们采用行业标准的安全技术与管理措施，保护你的信息不被泄露、篡改、丢失，严格限制接触你个人信息的人员权限。
+        </view>
+        <view class="section-content">
+          我们绝不会出售、出租、非法向第三方共享你的个人信息，除非获得你的单独明示授权，或法律法规有强制性要求。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">三、你的个人信息权利</view>
+        <view class="section-content">
+          你依法享有对个人信息的知情权、查阅更正权、删除权、撤回授权权、账号注销权。
+        </view>
+        <view class="section-content">
+          你可通过小程序个人中心，或联系邮箱 605406376@qq.com 申请行使相关权利，我们将在 15 个工作日内响应处理。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">四、政策更新</view>
+        <view class="section-content">
+          我们有权根据法规及运营需求更新本政策，更新后将公示 7 日生效，重大变更将重新获取你的明示同意。
+        </view>
+        <view class="section-content">
+          你继续使用本小程序，即视为接受更新后的政策内容。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">五、联系我们</view>
+        <view class="section-content">
+          如有任何疑问，可通过联系邮箱 605406376@qq.com 与我们联系。
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

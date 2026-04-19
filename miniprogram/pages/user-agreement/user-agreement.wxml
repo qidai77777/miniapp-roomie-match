@@ -1,0 +1,68 @@
+<navigation-bar title="用户服务协议" back="{{true}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y="{{true}}">
+  <view class="page-shell">
+    <view class="agreement-container">
+      <view class="agreement-title">坡岛合租工具 用户服务协议</view>
+      
+      <view class="agreement-section">
+        <view class="section-title">一、协议主体</view>
+        <view class="section-content">
+          本协议由你与「坡岛合租工具」运营主体【运营主体全称】（下称 "我们"）订立。你点击 "同意" 本协议，即表示你已阅读并接受本协议全部条款，同时接受配套《隐私政策》的约束。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">二、服务内容</view>
+        <view class="section-content">
+          我们通过本小程序为你提供新加坡合租伙伴匹配、合租需求发布、匹配用户对接相关服务。我们有权根据运营规则调整服务内容，调整后将在小程序内公示，你继续使用即视为接受调整。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">三、账号与信息授权</view>
+        <view class="section-content">
+          本小程序通过微信账号授权完成注册登录，你需保证授权的微信账号合法有效。
+        </view>
+        <view class="section-content">
+          为完成账号登录、身份核验，你需授权我们获取微信 OpenID、UnionID 唯一身份标识，用于账号安全校验与用户身份识别。
+        </view>
+        <view class="section-content">
+          本小程序核心服务为合租伙伴匹配，匹配成功后需通过微信建群完成双方对接，微信号是实现该对接服务、核验用户真实身份、定位对接主体、规避虚假信息与纠纷的必需信息，为使用发布合租需求、发起匹配对接的核心功能，你需填写真实有效的微信号。
+        </view>
+        <view class="section-content">
+          相关信息的收集、使用规则详见《隐私政策》，我们仅在获得你的明示同意后收集和使用该信息。
+        </view>
+        <view class="section-content">
+          你需对账号内的所有行为负责，不得转借账号、发布虚假 / 违法 / 侵权信息，不得利用本小程序从事违规行为。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">四、双方权责</view>
+        <view class="section-content">
+          我们将依法保护你的个人信息安全，为你提供合规的小程序服务，受理你的咨询与反馈。
+        </view>
+        <view class="section-content">
+          你有权随时注销账号，注销后我们将按法规要求处理你的个人信息。
+        </view>
+        <view class="section-content">
+          若你违反本协议或平台规则，我们有权采取限制服务、封禁账号、终止服务等措施，相关责任由你自行承担。
+        </view>
+      </view>
+
+      <view class="agreement-section">
+        <view class="section-title">五、其他</view>
+        <view class="section-content">
+          我们有权根据法规及运营需求更新本协议，更新后将公示 7 日生效，你继续使用即视为接受更新内容。
+        </view>
+        <view class="section-content">
+          本协议未尽事宜，遵循国家法律法规及微信小程序平台规则。
+        </view>
+        <view class="section-content">
+          如有疑问，可通过联系邮箱 605406376@qq.com 与我们联系。
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

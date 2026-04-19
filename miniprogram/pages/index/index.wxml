@@ -80,15 +80,15 @@
           <view class="field-group {{shakingFields.preferredRoommateGender ? 'shake' : ''}}">
             <view class="field-label">想找的室友 <text class="required">*</text></view>
             <view class="radio-group">
-              <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectPreferredGender">
+              <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="male" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
                 <text class="radio-title">男室友</text>
                 <text class="radio-desc">仅匹配男生</text>
               </view>
-              <view class="radio-btn {{form.preferredRoommateGender === 'female' ? 'selected' : ''}}" data-value="female" bindtap="selectPreferredGender">
+              <view class="radio-btn {{form.preferredRoommateGender === 'female' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="female" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
                 <text class="radio-title">女室友</text>
                 <text class="radio-desc">仅匹配女生</text>
               </view>
-              <view class="radio-btn {{form.preferredRoommateGender === 'any' ? 'selected' : ''}}" data-value="any" bindtap="selectPreferredGender">
+              <view class="radio-btn {{form.preferredRoommateGender === 'any' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="any" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
                 <text class="radio-title">都可以</text>
                 <text class="radio-desc">按条件综合匹配</text>
               </view>
@@ -99,11 +99,11 @@
             <view class="field-label">入住人数 <text class="required">*</text></view>
             <view class="field-hint">如果是情侣或夫妻一起找房，请选择 2 人入住。</view>
             <view class="radio-group">
-              <view class="radio-btn {{form.occupantCount === '1' ? 'selected' : ''}}" data-value="1" bindtap="selectOccupantCount">
+              <view class="radio-btn {{form.occupantCount === '1' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="1" bindtap="{{isLoggedIn ? 'selectOccupantCount' : 'showLoginRequired'}}">
                 <text class="radio-title">1 人入住</text>
                 <text class="radio-desc">个人找室友</text>
               </view>
-              <view class="radio-btn {{form.occupantCount === '2' ? 'selected' : ''}}" data-value="2" bindtap="selectOccupantCount">
+              <view class="radio-btn {{form.occupantCount === '2' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="2" bindtap="{{isLoggedIn ? 'selectOccupantCount' : 'showLoginRequired'}}">
                 <text class="radio-title">2 人入住</text>
                 <text class="radio-desc">情侣 / 夫妻</text>
               </view>
@@ -116,22 +116,22 @@
             <view class="field-label">个人整洁程度 <text class="required">*</text></view>
             <view class="field-hint">1 = 随意自在，5 = 极致整洁</view>
             <view class="clean-level-wrap">
-              <view class="level-btn {{form.cleanLevel === '1' ? 'selected' : ''}}" data-value="1" bindtap="selectCleanLevel">1</view>
-              <view class="level-btn {{form.cleanLevel === '2' ? 'selected' : ''}}" data-value="2" bindtap="selectCleanLevel">2</view>
-              <view class="level-btn {{form.cleanLevel === '3' ? 'selected' : ''}}" data-value="3" bindtap="selectCleanLevel">3</view>
-              <view class="level-btn {{form.cleanLevel === '4' ? 'selected' : ''}}" data-value="4" bindtap="selectCleanLevel">4</view>
-              <view class="level-btn {{form.cleanLevel === '5' ? 'selected' : ''}}" data-value="5" bindtap="selectCleanLevel">5</view>
+              <view class="level-btn {{form.cleanLevel === '1' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="1" bindtap="{{isLoggedIn ? 'selectCleanLevel' : 'showLoginRequired'}}">1</view>
+              <view class="level-btn {{form.cleanLevel === '2' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="2" bindtap="{{isLoggedIn ? 'selectCleanLevel' : 'showLoginRequired'}}">2</view>
+              <view class="level-btn {{form.cleanLevel === '3' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="3" bindtap="{{isLoggedIn ? 'selectCleanLevel' : 'showLoginRequired'}}">3</view>
+              <view class="level-btn {{form.cleanLevel === '4' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="4" bindtap="{{isLoggedIn ? 'selectCleanLevel' : 'showLoginRequired'}}">4</view>
+              <view class="level-btn {{form.cleanLevel === '5' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="5" bindtap="{{isLoggedIn ? 'selectCleanLevel' : 'showLoginRequired'}}">5</view>
             </view>
           </view>
 
           <view class="field-group {{shakingFields.smoke ? 'shake' : ''}}">
             <view class="field-label">吸烟 <text class="required">*</text></view>
             <view class="bool-group">
-              <view class="bool-btn yes {{form.smoke === true ? 'selected' : ''}}" data-value="true" bindtap="selectSmoke">
+              <view class="bool-btn yes {{form.smoke === true ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="true" bindtap="{{isLoggedIn ? 'selectSmoke' : 'showLoginRequired'}}">
                 <text class="bool-title">吸烟</text>
                 <text class="bool-desc">可接受烟味环境</text>
               </view>
-              <view class="bool-btn no {{form.smoke === false ? 'selected' : ''}}" data-value="false" bindtap="selectSmoke">
+              <view class="bool-btn no {{form.smoke === false ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="false" bindtap="{{isLoggedIn ? 'selectSmoke' : 'showLoginRequired'}}">
                 <text class="bool-title">不吸烟</text>
                 <text class="bool-desc">更偏好无烟空间</text>
               </view>
@@ -141,11 +141,11 @@
           <view class="field-group {{shakingFields.drink ? 'shake' : ''}}">
             <view class="field-label">饮酒 <text class="required">*</text></view>
             <view class="bool-group">
-              <view class="bool-btn yes {{form.drink === true ? 'selected' : ''}}" data-value="true" bindtap="selectDrink">
+              <view class="bool-btn yes {{form.drink === true ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="true" bindtap="{{isLoggedIn ? 'selectDrink' : 'showLoginRequired'}}">
                 <text class="bool-title">会喝酒</text>
                 <text class="bool-desc">偶尔饮酒</text>
               </view>
-              <view class="bool-btn no {{form.drink === false ? 'selected' : ''}}" data-value="false" bindtap="selectDrink">
+              <view class="bool-btn no {{form.drink === false ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="false" bindtap="{{isLoggedIn ? 'selectDrink' : 'showLoginRequired'}}">
                 <text class="bool-title">不喝酒</text>
                 <text class="bool-desc">更安静规律</text>
               </view>
@@ -157,11 +157,11 @@
           <view class="field-group {{shakingFields.hasGuest ? 'shake' : ''}}">
             <view class="field-label">你本人是否会带访客回家？<text class="required">*</text></view>
             <view class="bool-group">
-              <view class="bool-btn yes {{form.hasGuest === true ? 'selected' : ''}}" data-value="true" bindtap="selectHasGuest">
+              <view class="bool-btn yes {{form.hasGuest === true ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="true" bindtap="{{isLoggedIn ? 'selectHasGuest' : 'showLoginRequired'}}">
                 <text class="bool-title">会带访客</text>
                 <text class="bool-desc">需要与室友协调</text>
               </view>
-              <view class="bool-btn no {{form.hasGuest === false ? 'selected' : ''}}" data-value="false" bindtap="selectHasGuest">
+              <view class="bool-btn no {{form.hasGuest === false ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="false" bindtap="{{isLoggedIn ? 'selectHasGuest' : 'showLoginRequired'}}">
                 <text class="bool-title">不会带访客</text>
                 <text class="bool-desc">更偏好安静环境</text>
               </view>
@@ -171,11 +171,11 @@
           <view wx:if="{{form.hasGuest === true}}" class="field-group {{shakingFields.guestOvernight ? 'shake' : ''}}">
             <view class="field-label">你的访客是否会在家过夜？<text class="required">*</text></view>
             <view class="bool-group">
-              <view class="bool-btn yes {{form.guestOvernight === true ? 'selected' : ''}}" data-value="true" bindtap="selectGuestOvernight">
+              <view class="bool-btn yes {{form.guestOvernight === true ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="true" bindtap="{{isLoggedIn ? 'selectGuestOvernight' : 'showLoginRequired'}}">
                 <text class="bool-title">有时过夜</text>
                 <text class="bool-desc">需要提前沟通安排</text>
               </view>
-              <view class="bool-btn no {{form.guestOvernight === false ? 'selected' : ''}}" data-value="false" bindtap="selectGuestOvernight">
+              <view class="bool-btn no {{form.guestOvernight === false ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="false" bindtap="{{isLoggedIn ? 'selectGuestOvernight' : 'showLoginRequired'}}">
                 <text class="bool-title">不过夜</text>
                 <text class="bool-desc">更稳定的同住节奏</text>
               </view>
@@ -189,7 +189,7 @@
             <view class="field-hint">前面的数字代表卧室数量，后面的数字代表卫生间数量，Studio 表示开放式一室。</view>
             <view class="chip-group">
               <block wx:for="{{houseTypeOptions}}" wx:key="value">
-                <view class="chip {{form.houseType === item.value ? 'selected' : ''}}" data-value="{{item.value}}" bindtap="selectHouseType">{{item.label}}</view>
+                <view class="chip {{form.houseType === item.value ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="{{item.value}}" bindtap="{{isLoggedIn ? 'selectHouseType' : 'showLoginRequired'}}">{{item.label}}</view>
               </block>
             </view>
           </view>
@@ -197,15 +197,15 @@
           <view class="field-group {{shakingFields.roomType ? 'shake' : ''}}">
             <view class="field-label">想住房间类型 <text class="required">*</text></view>
             <view class="radio-group">
-              <view class="radio-btn {{form.roomType === 'master' ? 'selected' : ''}}" data-value="master" bindtap="selectRoomType">
+              <view class="radio-btn {{form.roomType === 'master' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="master" bindtap="{{isLoggedIn ? 'selectRoomType' : 'showLoginRequired'}}">
                 <text class="radio-title">主人房</text>
                 <text class="radio-desc">独立卫浴优先</text>
               </view>
-              <view class="radio-btn {{form.roomType === 'common' ? 'selected' : ''}}" data-value="common" bindtap="selectRoomType">
+              <view class="radio-btn {{form.roomType === 'common' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="common" bindtap="{{isLoggedIn ? 'selectRoomType' : 'showLoginRequired'}}">
                 <text class="radio-title">普通房</text>
                 <text class="radio-desc">预算更灵活</text>
               </view>
-              <view class="radio-btn {{form.roomType === 'other' ? 'selected' : ''}}" data-value="other" bindtap="selectRoomType">
+              <view class="radio-btn {{form.roomType === 'other' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="other" bindtap="{{isLoggedIn ? 'selectRoomType' : 'showLoginRequired'}}">
                 <text class="radio-title">都可以</text>
                 <text class="radio-desc">以匹配度优先</text>
               </view>
@@ -216,11 +216,11 @@
             <view class="field-label">是否接受支付中介费？<text class="required">*</text></view>
             <view class="field-hint">新加坡租房有时需要支付半个月到一个月租金作为中介费。</view>
             <view class="bool-group">
-              <view class="bool-btn yes {{form.agencyFee === true ? 'selected' : ''}}" data-value="true" bindtap="selectAgencyFee">
+              <view class="bool-btn yes {{form.agencyFee === true ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="true" bindtap="{{isLoggedIn ? 'selectAgencyFee' : 'showLoginRequired'}}">
                 <text class="bool-title">可以接受</text>
                 <text class="bool-desc">房源范围更大</text>
               </view>
-              <view class="bool-btn no {{form.agencyFee === false ? 'selected' : ''}}" data-value="false" bindtap="selectAgencyFee">
+              <view class="bool-btn no {{form.agencyFee === false ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="false" bindtap="{{isLoggedIn ? 'selectAgencyFee' : 'showLoginRequired'}}">
                 <text class="bool-title">不接受</text>
                 <text class="bool-desc">仅看免中介房源</text>
               </view>
@@ -232,12 +232,12 @@
             <view class="budget-wrap">
               <view class="budget-input-wrap">
                 <text class="budget-symbol">$</text>
-                <input class="field-input budget-input" type="number" value="{{form.budgetMin}}" placeholder="最低" bindinput="onBudgetMinInput" />
+                <input class="field-input budget-input" type="number" value="{{form.budgetMin}}" placeholder="最低" bindinput="onBudgetMinInput" disabled="{{!isLoggedIn}}" bindtap="{{!isLoggedIn ? 'showLoginRequired' : ''}}" />
               </view>
               <text class="budget-sep">-</text>
               <view class="budget-input-wrap">
                 <text class="budget-symbol">$</text>
-                <input class="field-input budget-input" type="number" value="{{form.budgetMax}}" placeholder="最高" bindinput="onBudgetMaxInput" />
+                <input class="field-input budget-input" type="number" value="{{form.budgetMax}}" placeholder="最高" bindinput="onBudgetMaxInput" disabled="{{!isLoggedIn}}" bindtap="{{!isLoggedIn ? 'showLoginRequired' : ''}}" />
               </view>
             </view>
           </view>
@@ -245,11 +245,11 @@
           <view class="field-group {{shakingFields.moveIn ? 'shake' : ''}}">
             <view class="field-label">期望入住时间 <text class="required">*</text></view>
             <view class="movein-wrap">
-              <picker mode="selector" range="{{moveInYears}}" bindchange="onMoveInYearChange">
-                <view class="field-select movein-select {{form.moveInYear ? '' : 'placeholder'}}">{{form.moveInYear ? form.moveInYear + ' 年' : '年份'}}</view>
+              <picker mode="selector" range="{{moveInYears}}" bindchange="onMoveInYearChange" disabled="{{!isLoggedIn}}" bindtap="{{!isLoggedIn ? 'showLoginRequired' : ''}}">
+                <view class="field-select movein-select {{form.moveInYear ? '' : 'placeholder'}} {{!isLoggedIn ? 'disabled' : ''}}">{{form.moveInYear ? form.moveInYear + ' 年' : '年份'}}</view>
               </picker>
-              <picker mode="selector" range="{{moveInMonths}}" bindchange="onMoveInMonthChange">
-                <view class="field-select movein-select {{form.moveInMonth ? '' : 'placeholder'}}">{{form.moveInMonth ? form.moveInMonth + ' 月' : '月份'}}</view>
+              <picker mode="selector" range="{{moveInMonths}}" bindchange="onMoveInMonthChange" disabled="{{!isLoggedIn}}" bindtap="{{!isLoggedIn ? 'showLoginRequired' : ''}}">
+                <view class="field-select movein-select {{form.moveInMonth ? '' : 'placeholder'}} {{!isLoggedIn ? 'disabled' : ''}}">{{form.moveInMonth ? form.moveInMonth + ' 月' : '月份'}}</view>
               </picker>
             </view>
           </view>
@@ -259,7 +259,7 @@
           <view class="field-group {{shakingFields.intro ? 'shake' : ''}}">
             <view class="field-label">补充说明 <text class="required">*</text></view>
             <view class="field-hint">至少 10 个字，可以介绍自己、补充对室友的要求，或者说明你更在意的居住习惯。</view>
-            <textarea class="field-textarea" value="{{form.intro}}" maxlength="300" placeholder="例如：我是个安静、作息规律的人，希望公共区域保持整洁，晚间沟通尽量轻声。" bindinput="onIntroInput"></textarea>
+            <textarea class="field-textarea" value="{{form.intro}}" maxlength="300" placeholder="例如：我是个安静、作息规律的人，希望公共区域保持整洁，晚间沟通尽量轻声。" bindinput="onIntroInput" disabled="{{!isLoggedIn}}" bindtap="{{!isLoggedIn ? 'showLoginRequired' : ''}}"></textarea>
             <view class="char-count">{{form.intro.length}} / 300</view>
           </view>
 
@@ -286,9 +286,9 @@
         </view>
 
         <view class="form-footer">
-          <view wx:if="{{currentStep > 1}}" class="btn-prev" bindtap="prevStep">上一步</view>
-          <view wx:if="{{currentStep < totalSteps}}" class="btn-next {{currentStep === 1 ? 'full' : ''}}" bindtap="nextStep">下一步</view>
-          <view wx:if="{{currentStep === totalSteps}}" class="btn-submit {{isSubmitting ? 'loading' : ''}}" bindtap="handleSubmit">
+          <view wx:if="{{currentStep > 1}}" class="btn-prev {{!isLoggedIn ? 'disabled' : ''}}" bindtap="{{isLoggedIn ? 'prevStep' : 'showLoginRequired'}}">上一步</view>
+          <view wx:if="{{currentStep < totalSteps}}" class="btn-next {{currentStep === 1 ? 'full' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" bindtap="{{isLoggedIn ? 'nextStep' : 'showLoginRequired'}}">下一步</view>
+          <view wx:if="{{currentStep === totalSteps}}" class="btn-submit {{isSubmitting ? 'loading' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" bindtap="{{isLoggedIn ? 'handleSubmit' : 'showLoginRequired'}}">
             <text>{{isSubmitting ? '匹配中...' : '提交信息，开始匹配'}}</text>
           </view>
         </view>
@@ -297,7 +297,7 @@
   </view>
 </scroll-view>
 
-<view wx:if="{{authReady}}" class="bottom-tab">
+<view class="bottom-tab">
   <view class="tab-link active">
     <view class="tab-icon icon-home"></view>
   </view>

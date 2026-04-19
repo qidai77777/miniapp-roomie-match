@@ -1,0 +1,47 @@
+<navigation-bar title="授权登录" back="{{false}}" color="#164e63" background="rgba(255,255,255,0.88)"></navigation-bar>
+
+<scroll-view class="page-scroll" scroll-y="{{true}}">
+  <view class="page-shell">
+    <view class="bg-orb orb-a"></view>
+    <view class="bg-orb orb-b"></view>
+
+    <view class="login-card">
+      <view class="login-hero">
+        <view class="hero-title">欢迎使用坡岛合租工具</view>
+        <view class="hero-text">登录后即可填写匹配信息，开始寻找合适的室友。</view>
+      </view>
+
+      <view class="auth-panel">
+        <view class="panel-title">微信授权登录</view>
+
+        <view class="tips-card">
+          <view class="tips-title">登录后可以</view>
+          <view class="tips-text">• 填写并提交室友匹配信息</view>
+          <view class="tips-text">• 查看匹配结果和分组详情</view>
+          <view class="tips-text">• 完善个人资料</view>
+        </view>
+
+        <view class="action-group">
+          <view class="agreement-checkbox">
+            <view class="checkbox-wrapper" bindtap="toggleAgreement">
+              <view class="checkbox {{agreedToTerms ? 'checked' : ''}}">
+                <view wx:if="{{agreedToTerms}}" class="checkbox-icon">✓</view>
+              </view>
+              <view class="checkbox-text">
+                我已阅读并同意
+                <text class="link-text" catchtap="viewUserAgreement">《用户服务协议》</text>
+                和
+                <text class="link-text" catchtap="viewPrivacyPolicy">《隐私政策》</text>
+              </view>
+            </view>
+          </view>
+
+          <view class="primary-btn {{isSubmitting ? 'loading' : ''}} {{!agreedToTerms ? 'disabled' : ''}}" bindtap="handleLogin">
+            {{isSubmitting ? '登录中...' : '微信授权登录'}}
+          </view>
+          <view class="ghost-btn" bindtap="goHome">先去看看</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</scroll-view>

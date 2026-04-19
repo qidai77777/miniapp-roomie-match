@@ -1,6 +1,9 @@
 import { envConfig, isFullUrl } from '../config/env'
 import { clearAuthSession, loadAuthSession } from './storage'
 
+const HOME_PAGE_PATH = '/pages/index/index'
+const AUTH_LOGIN_PAGE_PATH = '/pages/auth-login/auth-login'
+
 type RequestMethod = 'OPTIONS' | 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'TRACE' | 'CONNECT'
 
 export type RequestOptions<TData = WechatMiniprogram.IAnyObject> = {
@@ -36,8 +39,20 @@ function handleUnauthorized() {
 
   isRedirectingToHome = true
 
+  const pages = getCurrentPages()
+  const currentPage = pages[pages.length - 1]
+  const currentRoute = currentPage ? `/${currentPage.route}` : HOME_PAGE_PATH
+  const currentOptions = currentPage ? currentPage.options || {} : {}
+  const queryString = Object.keys(currentOptions)
+    .map((key) => `${encodeURIComponent(key)}=${encodeURIComponent(currentOptions[key])}`)
+    .join('&')
+  const redirectPath =
+    currentRoute && currentRoute !== AUTH_LOGIN_PAGE_PATH
+      ? `${currentRoute}${queryString ? `?${queryString}` : ''}`
+      : HOME_PAGE_PATH
+
   wx.reLaunch({
-    url: '/pages/index/index',
+    url: `${AUTH_LOGIN_PAGE_PATH}?redirect=${encodeURIComponent(redirectPath)}`,
     complete: () => {
       setTimeout(() => {
         isRedirectingToHome = false
