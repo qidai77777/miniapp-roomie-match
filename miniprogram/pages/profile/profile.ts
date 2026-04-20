@@ -9,6 +9,7 @@ import {
 import { ensureLoggedIn, fetchCurrentUserProfile, getAuthSession } from '../../utils/auth'
 import { loadProfile, saveProfile } from '../../utils/storage'
 import { request } from '../../utils/request'
+import { validateRequiredProfile, showProfileIncompleteToast, validateAge, showAgeWarning } from '../../utils/validation'
 
 let hasPendingSync = false
 let isSyncing = false
@@ -119,7 +120,8 @@ Page({
         throw new Error('登录态中缺少 userId，无法更新个人信息')
       }
 
-      const profile = loadProfile()
+      // 使用当前页面的最新数据
+      const profile = this.data.profile
 
       await request<boolean, UpdateProfilePayload>({
         url: '/user/profile',
@@ -136,7 +138,14 @@ Page({
       })
 
       hasPendingSync = false
-      await this.refreshProfileFromServer()
+      // 保存成功后不立即刷新，让跳转后的页面去刷新
+      // await this.refreshProfileFromServer()
+      
+      // 保存成功后，检查必填字段是否完整，如果不完整给出提示
+      const validation = validateRequiredProfile(this.data.profile)
+      if (!validation.isValid) {
+        showProfileIncompleteToast(validation.missingText)
+      }
     } catch (error) {
       const message = error instanceof Error ? error.message : '个人资料同步失败'
       wx.showToast({
@@ -162,7 +171,15 @@ Page({
   },
 
   onAgeInput(e: WechatMiniprogram.Input) {
-    this.updateProfile({ age: e.detail.value.replace(/[^\d]/g, '').slice(0, 2) })
+    const ageStr = e.detail.value.replace(/[^\d]/g, '').slice(0, 2)
+    const age = Number(ageStr)
+
+    // 使用工具类检查年龄
+    if (ageStr && age > 0 && !validateAge(age)) {
+      showAgeWarning()
+    }
+
+    this.updateProfile({ age: ageStr })
   },
 
   onSchoolChange(e: WechatMiniprogram.PickerChange) {
@@ -175,8 +192,23 @@ Page({
     this.updateProfile({ wechat: e.detail.value.trim() })
   },
 
-  onNicknameInput(e: WechatMiniprogram.Input) {
-    this.updateProfile({ nickName: e.detail.value.trim() })
+  onNicknameSubmit(e: WechatMiniprogram.FormSubmit) {
+    // type="nickname" 的输入框必须通过 form 提交来获取值
+    const nickname = e.detail.value.nickname || ''
+    const trimmedNickname = nickname.trim()
+    
+    if (trimmedNickname) {
+      this.updateProfile({ nickName: trimmedNickname })
+      wx.showToast({
+        title: '昵称已保存',
+        icon: 'success',
+      })
+    } else {
+      wx.showToast({
+        title: '请输入昵称',
+        icon: 'none',
+      })
+    }
   },
 
   openServiceQrModal() {
@@ -205,8 +237,26 @@ Page({
 
   noop() {},
 
-  goHome() {
-    void this.syncProfileOnLeave()
+  async goHome() {
+    // 使用工具类检查必填字段
+    const validation = validateRequiredProfile()
+    
+    if (!validation.isValid) {
+      const result = await wx.showModal({
+        title: '资料未完善',
+        content: `${validation.missingText}尚未填写，这些信息是进行室友匹配的必填项。确定要离开吗？`,
+        confirmText: '继续填写',
+        cancelText: '暂时离开',
+      })
+
+      if (result.confirm) {
+        // 用户选择继续填写，不跳转
+        return
+      }
+    }
+
+    // 尝试同步数据
+    await this.syncProfileOnLeave()
     wx.redirectTo({ url: '/pages/index/index' })
   },
 })

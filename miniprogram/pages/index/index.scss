@@ -250,6 +250,31 @@ page {
   font-size: 23rpx;
   color: #4b7485;
   line-height: 1.7;
+  margin-bottom: 14rpx;
+  padding: 14rpx 18rpx;
+  border-radius: 16rpx;
+  background: rgba(240, 249, 255, 0.6);
+  border: 1rpx solid rgba(8, 145, 178, 0.08);
+}
+
+.compliance-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10rpx;
+  background: rgba(254, 243, 199, 0.5);
+  border: 1rpx solid rgba(245, 158, 11, 0.18);
+  color: #92400e;
+}
+
+.hint-icon {
+  flex-shrink: 0;
+  font-size: 24rpx;
+}
+
+.hint-text {
+  flex: 1;
+  font-size: 22rpx;
+  line-height: 1.6;
 }
 
 .required {
@@ -263,6 +288,10 @@ page {
   display: flex;
   flex-wrap: wrap;
   gap: 16rpx;
+}
+
+.radio-group.single-column {
+  flex-direction: column;
 }
 
 .radio-btn,

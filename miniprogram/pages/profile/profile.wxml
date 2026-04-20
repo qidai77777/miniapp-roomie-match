@@ -25,7 +25,13 @@
 
           <view class="field-group">
             <view class="field-label">昵称 <text class="required">*</text></view>
-            <input class="field-input" type="nickname" value="{{profile.nickName}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
+            <form catchsubmit="onNicknameSubmit">
+              <view class="nickname-form-wrap">
+                <input class="field-input nickname-input" type="nickname" name="nickname" placeholder="请输入昵称" />
+                <button class="nickname-submit-btn" form-type="submit">保存</button>
+              </view>
+            </form>
+            <view wx:if="{{profile.nickName}}" class="nickname-display">当前昵称：{{profile.nickName}}</view>
           </view>
 
           <view class="field-group">
@@ -33,6 +39,10 @@
             <view class="radio-group">
               <view class="radio-btn {{profile.gender === 'male' ? 'selected' : ''}}" data-value="male" bindtap="selectGender">男生</view>
               <view class="radio-btn {{profile.gender === 'female' ? 'selected' : ''}}" data-value="female" bindtap="selectGender">女生</view>
+            </view>
+            <view class="field-hint gender-warning">
+              <text class="hint-icon">⚠️</text>
+              <text class="hint-text">为保障合租安全，平台仅支持同性室友匹配，请如实填写性别信息</text>
             </view>
           </view>
 

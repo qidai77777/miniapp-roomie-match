@@ -79,18 +79,14 @@
         <view wx:if="{{currentStep === 1}}" class="step-body">
           <view class="field-group {{shakingFields.preferredRoommateGender ? 'shake' : ''}}">
             <view class="field-label">想找的室友 <text class="required">*</text></view>
-            <view class="radio-group">
-              <view class="radio-btn {{form.preferredRoommateGender === 'male' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="male" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
-                <text class="radio-title">男室友</text>
-                <text class="radio-desc">仅匹配男生</text>
-              </view>
-              <view class="radio-btn {{form.preferredRoommateGender === 'female' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="female" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
-                <text class="radio-title">女室友</text>
-                <text class="radio-desc">仅匹配女生</text>
-              </view>
-              <view class="radio-btn {{form.preferredRoommateGender === 'any' ? 'selected' : ''}} {{!isLoggedIn ? 'disabled' : ''}}" data-value="any" bindtap="{{isLoggedIn ? 'selectPreferredGender' : 'showLoginRequired'}}">
-                <text class="radio-title">都可以</text>
-                <text class="radio-desc">按条件综合匹配</text>
+            <view class="field-hint compliance-hint">
+              <text class="hint-icon">🛡️</text>
+              <text class="hint-text">为保障用户安全，平台仅支持同性室友匹配</text>
+            </view>
+            <view class="radio-group single-column">
+              <view class="radio-btn {{form.preferredRoommateGender === userGender ? 'selected' : ''}} {{!isLoggedIn || !userGender ? 'disabled' : ''}}" data-value="{{userGender}}" bindtap="selectPreferredGender">
+                <text class="radio-title">{{userGender === 'male' ? '男室友' : userGender === 'female' ? '女室友' : '同性室友'}}</text>
+                <text class="radio-desc">{{userGender === 'male' ? '仅匹配男生室友' : userGender === 'female' ? '仅匹配女生室友' : '请先完善个人资料中的性别信息'}}</text>
               </view>
             </view>
           </view>

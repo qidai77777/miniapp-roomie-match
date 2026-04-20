@@ -15,6 +15,7 @@ import {
 } from '../../utils/auth'
 import { clearForm, loadAuthSession, loadForm, loadProfile, saveForm } from '../../utils/storage'
 import { request } from '../../utils/request'
+import { validateRequiredProfile, showProfileIncompleteModal } from '../../utils/validation'
 
 type StepInfo = {
   title: string
@@ -129,6 +130,7 @@ type GroupMemberPreviewData = {
 
 type IndexPageData = {
   isLoggedIn: boolean
+  userGender: PreferredRoommateGender
   currentStep: number
   totalSteps: number
   progress: number
@@ -578,6 +580,7 @@ function buildGroupMemberPreview(
 Page({
   data: {
     isLoggedIn: isLoggedIn(),
+    userGender: '' as PreferredRoommateGender,
     currentStep: 1,
     totalSteps,
     progress: getProgress(1),
@@ -616,10 +619,19 @@ Page({
   async onShow() {
     const form = loadForm()
     const loggedIn = isLoggedIn()
+    const profile = loadProfile()
+    const userGender = profile.gender as PreferredRoommateGender
+
+    // 自动设置室友性别为用户自己的性别（同性匹配）
+    if (loggedIn && userGender && form.preferredRoommateGender !== userGender) {
+      form.preferredRoommateGender = userGender
+      saveForm(form)
+    }
 
     this.syncForm(form)
     this.setData({
       isLoggedIn: loggedIn,
+      userGender: userGender || '',
       profileReady: loggedIn && hasRequiredProfile(),
     })
 
@@ -630,9 +642,20 @@ Page({
 
     try {
       await fetchCurrentUserProfile()
+      const updatedProfile = loadProfile()
+      const updatedGender = updatedProfile.gender as PreferredRoommateGender
+      
       this.setData({
+        userGender: updatedGender || '',
         profileReady: hasRequiredProfile(),
       })
+
+      // 再次确保同性匹配
+      if (updatedGender && form.preferredRoommateGender !== updatedGender) {
+        form.preferredRoommateGender = updatedGender
+        saveForm(form)
+        this.syncForm(form)
+      }
     } catch {
       // Keep local profile cache when refresh fails.
     }
@@ -821,6 +844,17 @@ Page({
 
   nextStep() {
     if (this.data.currentStep >= this.data.totalSteps) return
+    
+    // 第一步时，使用工具类检查个人资料必填字段
+    if (this.data.currentStep === 1) {
+      const validation = validateRequiredProfile()
+      
+      if (!validation.isValid) {
+        void showProfileIncompleteModal(validation.missingText)
+        return
+      }
+    }
+
     if (!this.canProceed()) {
       this.shakeEmpty()
       return
@@ -834,7 +868,41 @@ Page({
   },
 
   selectPreferredGender(e: WechatMiniprogram.BaseEvent<{ value: PreferredRoommateGender }>) {
-    this.updateForm({ preferredRoommateGender: e.currentTarget.dataset.value })
+    const selectedGender = e.currentTarget.dataset.value
+    const userGender = this.data.userGender
+
+    // 如果未登录，提示登录
+    if (!this.data.isLoggedIn) {
+      void this.showLoginRequired()
+      return
+    }
+
+    // 如果用户性别未设置，提示完善资料
+    if (!userGender) {
+      wx.showModal({
+        title: '请先完善性别信息',
+        content: '请先在个人中心填写性别信息后再进行匹配。',
+        confirmText: '去完善',
+        cancelText: '稍后',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/pages/profile/profile' })
+          }
+        },
+      })
+      return
+    }
+
+    // 强制同性匹配：只能选择与自己性别相同的室友
+    if (selectedGender === userGender) {
+      this.updateForm({ preferredRoommateGender: selectedGender })
+    } else {
+      wx.showToast({
+        title: '为保障安全，仅支持同性室友匹配',
+        icon: 'none',
+        duration: 2000,
+      })
+    }
   },
 
   selectOccupantCount(e: WechatMiniprogram.BaseEvent<{ value: '1' | '2' }>) {
